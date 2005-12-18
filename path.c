@@ -2,7 +2,7 @@
 /*****************************************************************************
  *
  * DESCRIPTION:
- *  About box for gmidimonitor. 
+ *  Access to project specific data files.
  *
  * LICENSE:
  *  GNU GENERAL PUBLIC LICENSE version 2
@@ -49,12 +49,24 @@ path_get_data_filename(const gchar * filename)
 
   path_check_initialization();
 
+  /* check if it can be found where executable resides */
+  /* This allows executing not installed binary to read right data files */
   full_path = g_strdup_printf("%s/%s", pszPathToExecutable, filename);
   if (stat(full_path, &st) == 0)
   {
     return full_path;
   }
   g_free(full_path);
+
+#if defined(DATA_DIR)
+  /* check in installation data dir */
+  full_path = g_strdup_printf(DATA_DIR "/%s", filename);
+  if (stat(full_path, &st) == 0)
+  {
+    return full_path;
+  }
+  g_free(full_path);
+#endif
 
   return NULL;
 }

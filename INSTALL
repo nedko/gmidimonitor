@@ -23,6 +23,8 @@ You need:
          Known to work with alsa-lib 1.0.9
          You can get it from http://www.alsa-project.org/
 
+Check the GNUmakefile and change PREFIX variable if you need.
+
 To build gmidimonitor simply run GNU make without parameters:
 
     # make
@@ -31,7 +33,8 @@ If you are running BSD, GNU make may be called gmake, so you run it like this:
 
     # gmake
 
-If everything compiles, you will get gmidimonitor executable in current directory
-Copy it wherever you want
+Now install it (you may need to be root to do this):
 
-Good luck and report bugs
+    # make install
+
+Good luck and report bugs so they can get fixed.
