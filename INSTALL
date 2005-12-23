@@ -22,6 +22,9 @@ You need:
      2.3 ALSA library
          Known to work with alsa-lib 1.0.9
          You can get it from http://www.alsa-project.org/
+     2.4 LASH
+         Known to work with lash 0.5.0
+         You can get it from http://www.nongnu.org/lash/
 
 Check the GNUmakefile and change PREFIX variable if you need.
 
