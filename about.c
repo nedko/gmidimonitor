@@ -374,7 +374,7 @@ on_about_clicked(
   about = g_object_new(
     GTK_TYPE_ABOUT_DIALOG,
     "name", "GMIDImonitor",
-    "version", "1.0",
+    "version", "2.0",
     "copyright", "Copyright \xc2\xa9 2005 Nedko Arnaudov",
     "authors", authors,
     "comments", "GTK MIDI monitor.",
