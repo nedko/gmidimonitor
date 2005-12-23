@@ -1,0 +1,43 @@
+You need:
+
+  1. Build tools
+     1.1 compiler + linker
+         Known to work with gcc 3.4.3 and binutils 2.15.94.0.2.2
+         You can get gcc from http://www.gnu.org/software/gcc/
+         You can get binutils from http://www.gnu.org/software/binutils/
+     1.2 GNU Make
+         Known to work with GNU Make 3.80
+         You can get it from http://www.gnu.org/software/make/
+     1.3 pkg-config
+         Known to work with pkg-config 0.19
+         You can get it from http://pkgconfig.freedesktop.org/wiki/
+
+  2. Libraries
+     2.1 GTK+ >= 2.6
+         Known to work with GTK+ 2.8.6
+         You can get it from http://www.gtk.org/
+     2.2 libglade >= 2.0
+         Known to work with libglade 2.5.1
+         You can get it from http://www.jamesh.id.au/software/libglade/
+     2.3 ALSA library
+         Known to work with alsa-lib 1.0.9
+         You can get it from http://www.alsa-project.org/
+     2.4 LASH
+         Known to work with lash 0.5.0
+         You can get it from http://www.nongnu.org/lash/
+
+Check the GNUmakefile and change PREFIX variable if you need.
+
+To build gmidimonitor simply run GNU make without parameters:
+
+    # make
+
+If you are running BSD, GNU make may be called gmake, so you run it like this:
+
+    # gmake
+
+Now install it (you may need to be root to do this):
+
+    # make install
+
+Good luck and report bugs so they can get fixed.
