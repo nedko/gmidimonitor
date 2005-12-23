@@ -13,6 +13,7 @@
 #include <alsa/asoundlib.h>
 #include <pthread.h>
 #include <signal.h>
+#include <lash/lash.h>
 
 #include "path.h"
 #include "glade.h"
@@ -24,6 +25,8 @@ snd_seq_t * g_seq_ptr;
 gboolean g_midi_ignore = FALSE;
 
 int g_row_count;
+
+lash_client_t * g_lashc;
 
 static const char * g_note_names[12] = 
 {
@@ -987,12 +990,78 @@ midi_thread(void * context_ptr)
   return NULL;
 }
 
+void
+process_lash_event(lash_event_t * event_ptr)
+{
+  enum LASH_Event_Type type;
+  const char * str;
+
+  type = lash_event_get_type(event_ptr);
+  str = lash_event_get_string(event_ptr);
+
+  switch (type)
+  {
+  case LASH_Quit:
+    g_warning("LASH_Quit received.\n");
+    g_lashc = NULL;
+    gtk_main_quit();
+    break;
+  case LASH_Save_File:
+  case LASH_Restore_File:
+  case LASH_Save_Data_Set:
+  default:
+    g_warning("LASH Event. Type = %u, string = \"%s\"\n",
+              (unsigned int)type,
+              (str == NULL)?"":str);
+  }
+}
+
+void
+process_lash_config(lash_config_t * config_ptr)
+{
+  const char * key;
+  const void * data;
+  size_t data_size;
+
+  key = lash_config_get_key(config_ptr);
+  data = lash_config_get_value(config_ptr);
+  data_size = lash_config_get_value_size(config_ptr);
+
+  g_warning("LASH Config. Key = \"%s\"\n", key);
+}
+
+/* process lash events callback */
+gboolean
+process_lash_events(gpointer data)
+{
+  lash_event_t * event_ptr;
+  lash_config_t * config_ptr;
+
+  /* Process events */
+  while ((event_ptr = lash_get_event(g_lashc)) != NULL)
+  {
+    process_lash_event(event_ptr);
+    lash_event_destroy(event_ptr); 
+  }
+
+  /* Process configs */
+  while ((config_ptr = lash_get_config(g_lashc)) != NULL)
+  {
+    process_lash_config(config_ptr);
+    lash_config_destroy(config_ptr);  
+  }
+
+  return TRUE;
+}
+
 int
 main(int argc, char *argv[])
 {
   int ret;
   snd_seq_port_info_t * port_info = NULL;
   pthread_t midi_tid;
+  lash_event_t * lash_event_ptr;
+  GString * seq_client_name_str_ptr;
 
   /* init threads */
   g_thread_init(NULL);
@@ -1002,6 +1071,24 @@ main(int argc, char *argv[])
   gtk_init(&argc, &argv);
 
   path_init(argv[0]);
+
+  g_lashc = lash_init(
+    lash_extract_args(&argc, &argv),
+    "gmidimonitor",
+    0,
+    LASH_PROTOCOL_VERSION); 
+
+	if (g_lashc == NULL)
+  {
+		g_warning("Failed to connect to LASH. Session management will not occur.\n");
+	}
+  else
+  {
+		lash_event_ptr = lash_event_new_with_type(LASH_Client_Name);
+		lash_event_set_string(lash_event_ptr, "GMIDImonitor");
+		lash_send_event(g_lashc, lash_event_ptr);
+    g_timeout_add(250, process_lash_events, NULL);
+	}
 
   /* interface creation */
   create_mainwindow();
@@ -1018,7 +1105,11 @@ main(int argc, char *argv[])
     goto path_uninit;
   }
 
-  snd_seq_set_client_name(g_seq_ptr, "MIDI monitor");
+  seq_client_name_str_ptr = g_string_new("");
+  g_string_sprintf(seq_client_name_str_ptr, "MIDI monitor (%u)", (unsigned int)getpid());
+  snd_seq_set_client_name(g_seq_ptr, seq_client_name_str_ptr->str);
+
+  lash_alsa_client_id(g_lashc, snd_seq_client_id(g_seq_ptr));
 
   snd_seq_port_info_alloca(&port_info);
 

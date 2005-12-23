@@ -2,8 +2,8 @@ PREFIX=/usr
 BIN_DIR=$(PREFIX)/bin
 DATA_DIR=$(PREFIX)/share/gmidimonitor
 
-CFLAGS := $(strip $(shell pkg-config --cflags gtk+-2.0 libglade-2.0)) -Wall -Werror -DDATA_DIR='"$(DATA_DIR)"'
-LIBS := $(strip $(shell pkg-config --libs gtk+-2.0 libglade-2.0 gmodule-2.0 gthread-2.0 alsa))
+CFLAGS := $(strip $(shell pkg-config --cflags gtk+-2.0 libglade-2.0 lash-1.0)) -Wall -Werror -DDATA_DIR='"$(DATA_DIR)"'
+LIBS := $(strip $(shell pkg-config --libs gtk+-2.0 libglade-2.0 gmodule-2.0 gthread-2.0 alsa lash-1.0))
 
 OBJECTS=about.o path.o glade.o main.o
 
