@@ -345,6 +345,8 @@ midi_thread(void * context_ptr)
   int octave;
   const char * drum_name;
   const char * cc_name;
+  int i;
+  const char * mmc_command_name;
 
   child_ptr = get_glade_widget_child(g_main_window_ptr, "list");
 
@@ -917,7 +919,92 @@ midi_thread(void * context_ptr)
       g_string_sprintf(msg_str_ptr, "instrument change");
       break;
     case SND_SEQ_EVENT_SYSEX:
-      g_string_sprintf(msg_str_ptr, "system exclusive data (variable length)");
+      /* MMC decoding, as seen at http://www.borg.com/~jglatt/tech/mmc.htm and
+         extended from "Advanced User Guide for MK-449C MIDI keyboard" info */
+      if (event_ptr->data.ext.len == 6 &&
+          ((guint8 *)event_ptr->data.ext.ptr)[0] == 0xF0 &&
+          ((guint8 *)event_ptr->data.ext.ptr)[1] == 0x7F &&
+          ((guint8 *)event_ptr->data.ext.ptr)[3] == 0x06 &&
+          ((guint8 *)event_ptr->data.ext.ptr)[5] == 0xF7)
+      {
+        switch (((guint8 *)event_ptr->data.ext.ptr)[4])
+        {
+        case 1:
+          mmc_command_name = "Stop";
+          break;
+        case 2:
+          mmc_command_name = "Play";
+          break;
+        case 3:
+          mmc_command_name = "Deferred Play";
+          break;
+        case 4:
+          mmc_command_name = "Fast Forward";
+          break;
+        case 5:
+          mmc_command_name = "Rewind";
+          break;
+        case 6:
+          mmc_command_name = "Record Strobe (Punch In)";
+          break;
+        case 7:
+          mmc_command_name = "Record Exit (Punch Out)";
+          break;
+        case 8:
+          mmc_command_name = "Record Pause";
+          break;
+        case 9:
+          mmc_command_name = "Pause";
+          break;
+        case 10:
+          mmc_command_name = "Eject";
+          break;
+        case 11:
+          mmc_command_name = "Chase";
+          break;
+        case 12:
+          mmc_command_name = "Command Error Reset";
+          break;
+        case 13:
+          mmc_command_name = "Reset";
+          break;
+        default:
+          goto generic_sysex;
+        }
+        g_string_sprintf(
+          msg_str_ptr,
+          "MMC %s, for ",
+          mmc_command_name);
+
+        if (((guint8 *)event_ptr->data.ext.ptr)[2] == 127)
+        {
+          g_string_append(
+            msg_str_ptr,
+            "all devices");
+        }
+        else
+        {
+          g_string_append_printf(
+            msg_str_ptr,
+            "device %u",
+            (unsigned int)(((guint8 *)event_ptr->data.ext.ptr)[2]));
+        }
+      }
+      else
+      {
+      generic_sysex:
+        g_string_sprintf(
+          msg_str_ptr,
+          "SYSEX with size %u:",
+          (unsigned int)event_ptr->data.ext.len);
+        for (i = 0 ; i < event_ptr->data.ext.len ; i++)
+        {
+          g_string_append_printf(
+            msg_str_ptr,
+            " %02X",
+            (unsigned int)(((guint8 *)event_ptr->data.ext.ptr)[i]));
+        }
+      }
       break;
     case SND_SEQ_EVENT_BOUNCE:
       g_string_sprintf(msg_str_ptr, "error event");
