@@ -1003,10 +1003,11 @@ midi_thread(void * context_ptr)
         g_string_sprintf(
           msg_str_ptr,
           "MMC goto %u:%u:%u/%u:%u",
-          (unsigned int)(((guint8 *)event_ptr->data.ext.ptr)[7] & 0x1F),
+          (unsigned int)(((guint8 *)event_ptr->data.ext.ptr)[7] & 0x1F), /* fps encoding */
           (unsigned int)(((guint8 *)event_ptr->data.ext.ptr)[8]),
           (unsigned int)(((guint8 *)event_ptr->data.ext.ptr)[9]),
-          (unsigned int)(((guint8 *)event_ptr->data.ext.ptr)[10]),
+          (unsigned int)(((guint8 *)event_ptr->data.ext.ptr)[10] & 0x1F), /* no fps > 32, but bit 5 looks
+                                                                             used for something */
           (unsigned int)(((guint8 *)event_ptr->data.ext.ptr)[11]));
 
         switch (((guint8 *)event_ptr->data.ext.ptr)[7] & 0x60)
