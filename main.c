@@ -919,7 +919,7 @@ midi_thread(void * context_ptr)
       g_string_sprintf(msg_str_ptr, "instrument change");
       break;
     case SND_SEQ_EVENT_SYSEX:
-      /* MMC decoding, as seen at http://www.borg.com/~jglatt/tech/mmc.htm and
+      /* General MMC decoding, as seen at http://www.borg.com/~jglatt/tech/mmc.htm and
          extended from "Advanced User Guide for MK-449C MIDI keyboard" info */
       if (event_ptr->data.ext.len == 6 &&
           ((guint8 *)event_ptr->data.ext.ptr)[0] == 0xF0 &&
@@ -975,6 +975,39 @@ midi_thread(void * context_ptr)
           msg_str_ptr,
           "MMC %s, for ",
           mmc_command_name);
+
+        if (((guint8 *)event_ptr->data.ext.ptr)[2] == 127)
+        {
+          g_string_append(
+            msg_str_ptr,
+            "all devices");
+        }
+        else
+        {
+          g_string_append_printf(
+            msg_str_ptr,
+            "device %u",
+            (unsigned int)(((guint8 *)event_ptr->data.ext.ptr)[2]));
+        }
+      }
+      /* The goto MMC message, as seen at http://www.borg.com/~jglatt/tech/mmc.htm*/
+      else if (event_ptr->data.ext.len == 13 &&
+               ((guint8 *)event_ptr->data.ext.ptr)[0] == 0xF0 &&
+               ((guint8 *)event_ptr->data.ext.ptr)[1] == 0x7F &&
+               ((guint8 *)event_ptr->data.ext.ptr)[3] == 0x06 &&
+               ((guint8 *)event_ptr->data.ext.ptr)[4] == 0x44 &&
+               ((guint8 *)event_ptr->data.ext.ptr)[5] == 0x06 &&
+               ((guint8 *)event_ptr->data.ext.ptr)[6] == 0x01 &&
+               ((guint8 *)event_ptr->data.ext.ptr)[12] == 0xF7)
+      {
+        g_string_sprintf(
+          msg_str_ptr,
+          "MMC goto %u:%u:%u/%u:%u, for ",
+          (unsigned int)(((guint8 *)event_ptr->data.ext.ptr)[7]),
+          (unsigned int)(((guint8 *)event_ptr->data.ext.ptr)[8]),
+          (unsigned int)(((guint8 *)event_ptr->data.ext.ptr)[9]),
+          (unsigned int)(((guint8 *)event_ptr->data.ext.ptr)[10]),
+          (unsigned int)(((guint8 *)event_ptr->data.ext.ptr)[11]));
 
         if (((guint8 *)event_ptr->data.ext.ptr)[2] == 127)
         {
