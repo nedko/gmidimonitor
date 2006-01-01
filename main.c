@@ -1002,24 +1002,48 @@ midi_thread(void * context_ptr)
       {
         g_string_sprintf(
           msg_str_ptr,
-          "MMC goto %u:%u:%u/%u:%u, for ",
-          (unsigned int)(((guint8 *)event_ptr->data.ext.ptr)[7]),
+          "MMC goto %u:%u:%u/%u:%u",
+          (unsigned int)(((guint8 *)event_ptr->data.ext.ptr)[7] & 0x1F),
           (unsigned int)(((guint8 *)event_ptr->data.ext.ptr)[8]),
           (unsigned int)(((guint8 *)event_ptr->data.ext.ptr)[9]),
           (unsigned int)(((guint8 *)event_ptr->data.ext.ptr)[10]),
           (unsigned int)(((guint8 *)event_ptr->data.ext.ptr)[11]));
 
+        switch (((guint8 *)event_ptr->data.ext.ptr)[7] & 0x60)
+        {
+        case 0:
+          g_string_append(
+            msg_str_ptr,
+            ", 24 fps");
+          break;
+        case 1:
+          g_string_append(
+            msg_str_ptr,
+            ", 25 fps");
+          break;
+        case 2:
+          g_string_append(
+            msg_str_ptr,
+            ", 29.97 fps");
+          break;
+        case 3:
+          g_string_append(
+            msg_str_ptr,
+            ", 30 fps");
+          break;
+        }
+
         if (((guint8 *)event_ptr->data.ext.ptr)[2] == 127)
         {
           g_string_append(
             msg_str_ptr,
-            "all devices");
+            ", for all devices");
         }
         else
         {
           g_string_append_printf(
             msg_str_ptr,
-            "device %u",
+            ", for device %u",
             (unsigned int)(((guint8 *)event_ptr->data.ext.ptr)[2]));
         }
       }
