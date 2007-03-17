@@ -1,4 +1,4 @@
-Quick: ./configure && make && sudo make install
+Quick instructions: ./configure && make && sudo make install
 
 You need:
 
