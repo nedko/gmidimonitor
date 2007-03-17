@@ -37,6 +37,7 @@ To configure gmidimonitor execute the configure script:
 Non-standard options are:
   --disable-alsamidi      Force disable ALSA MIDI support [default=no]
   --disable-jackmidi      Force disable JACK MIDI support [default=no]
+  --disable-lash          Force disable LASH support [default=no]
 
 To build gmidimonitor simply run GNU make without parameters:
 

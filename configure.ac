@@ -29,7 +29,7 @@ have_alsamidi="unknown"
 AC_ARG_ENABLE(alsamidi, [AS_HELP_STRING(--disable-alsamidi, [Force disable ALSA MIDI support [default=no]])], [ have_alsamidi="no" ])
 if test "$have_alsamidi" = "unknown"
 then
-  PKG_CHECK_MODULES(ALSA, alsa, have_alsamidi="yes")
+  PKG_CHECK_MODULES(ALSA, alsa, AC_DEFINE([HAVE_ALSA_MIDI], [], [Defined if we have ALSA MIDI support.]) have_alsamidi="yes")
 fi
 
 # JACK MIDI
@@ -37,7 +37,7 @@ have_jackmidi="unknown"
 AC_ARG_ENABLE(jackmidi, [AS_HELP_STRING(--disable-jackmidi, [Force disable JACK MIDI support [default=no]])], [ have_jackmidi="no" ])
 if test "$have_jackmidi" = "unknown"
 then
-  PKG_CHECK_MODULES(JACK_MIDI, jack >= 0.102.0, AC_DEFINE([HAVE_JACK_MIDI], [], [Define if we have jack midi support.]) have_jackmidi="yes")
+  PKG_CHECK_MODULES(JACK_MIDI, jack >= 0.102.0, AC_DEFINE([HAVE_JACK_MIDI], [], [Defined if we have JACK MIDI support.]) have_jackmidi="yes")
   if test "$have_jackmidi" = "yes"
   then
     PKG_CHECK_MODULES(OLD_JACK_MIDI, jack < 0.102.27, have_jackmidi="yes (old one)" AC_DEFINE(HAVE_OLD_JACK_MIDI, 1, [whether or not we building against old JACK MIDI (0.102.20)]), echo no)
@@ -50,8 +50,12 @@ then
 fi
 
 # LASH
-have_lash="no"
-PKG_CHECK_MODULES(LASH, lash-1.0, have_lash="yes")
+have_lash="unknown"
+AC_ARG_ENABLE(lash, [AS_HELP_STRING(--disable-lash, [Force disable LASH support [default=no]])], [ have_lash="no" ])
+if test "$have_lash" = "unknown"
+then
+  PKG_CHECK_MODULES(LASH, lash-1.0, AC_DEFINE([HAVE_LASH], [], [Defined if we have LASH support.]) have_lash="yes")
+fi
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

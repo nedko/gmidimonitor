@@ -9,11 +9,16 @@
  *
  *****************************************************************************/
 
+#include "config.h"
+
 #include <gtk/gtk.h>
 #include <alsa/asoundlib.h>
 #include <pthread.h>
 #include <signal.h>
+
+#ifdef HAVE_LASH
 #include <lash/lash.h>
+#endif
 
 #include "path.h"
 #include "glade.h"
@@ -26,7 +31,9 @@ gboolean g_midi_ignore = FALSE;
 
 int g_row_count;
 
+#ifdef HAVE_LASH
 lash_client_t * g_lashc;
+#endif
 
 static const char * g_note_names[12] = 
 {
@@ -1140,6 +1147,8 @@ midi_thread(void * context_ptr)
   return NULL;
 }
 
+#ifdef HAVE_LASH
+
 void
 process_lash_event(lash_event_t * event_ptr)
 {
@@ -1204,13 +1213,17 @@ process_lash_events(gpointer data)
   return TRUE;
 }
 
+#endif  /* #ifdef HAVE_LASH */
+
 int
 main(int argc, char *argv[])
 {
   int ret;
   snd_seq_port_info_t * port_info = NULL;
   pthread_t midi_tid;
+#ifdef HAVE_LASH
   lash_event_t * lash_event_ptr;
+#endif
   GString * seq_client_name_str_ptr;
 
   /* init threads */
@@ -1222,6 +1235,7 @@ main(int argc, char *argv[])
 
   path_init(argv[0]);
 
+#ifdef HAVE_LASH
   g_lashc = lash_init(
     lash_extract_args(&argc, &argv),
     "gmidimonitor",
@@ -1239,6 +1253,7 @@ main(int argc, char *argv[])
 		lash_send_event(g_lashc, lash_event_ptr);
     g_timeout_add(250, process_lash_events, NULL);
 	}
+#endif
 
   /* interface creation */
   create_mainwindow();
@@ -1259,7 +1274,9 @@ main(int argc, char *argv[])
   g_string_sprintf(seq_client_name_str_ptr, "MIDI monitor (%u)", (unsigned int)getpid());
   snd_seq_set_client_name(g_seq_ptr, seq_client_name_str_ptr->str);
 
+#ifdef HAVE_LASH
   lash_alsa_client_id(g_lashc, snd_seq_client_id(g_seq_ptr));
+#endif
 
   snd_seq_port_info_alloca(&port_info);
 
