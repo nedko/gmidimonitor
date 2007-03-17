@@ -183,6 +183,9 @@ static const char * g_gm_instrument_names[] =
   "Gunshot",                    /* 128 */
 };
 
+#define GM_DRUM_FIRST_NOTE 35
+#define GM_DRUM_NOTES_COUNT (sizeof(g_gm_drum_names) / sizeof(g_gm_drum_names[0]))
+
 static const char * g_gm_drum_names[] =
 {
   "Acoustic Bass Drum",         /* 35 */
@@ -337,6 +340,21 @@ void on_clear_clicked
   g_row_count = 0;
 }
 
+const char *
+gm_get_drum_name(
+  unsigned char note)
+{
+  if (note >= GM_DRUM_FIRST_NOTE &&
+      note < GM_DRUM_FIRST_NOTE + GM_DRUM_NOTES_COUNT)
+  {
+    return g_gm_drum_names[note - GM_DRUM_FIRST_NOTE];
+  }
+  else
+  {
+    return NULL;
+  }
+}
+
 /* The midi input handling thread */
 void *
 midi_thread(void * context_ptr)
@@ -388,11 +406,9 @@ midi_thread(void * context_ptr)
         channel_str_ptr,
         "%u",
         (unsigned int)event_ptr->data.note.channel+1);
-      if (event_ptr->data.note.channel+1 == 10 &&
-          event_ptr->data.note.note >= 35 &&
-          event_ptr->data.note.note < 35 + sizeof(g_gm_drum_names)/sizeof(g_gm_drum_names[0]))
+      if (event_ptr->data.note.channel + 1 == 10)
       {
-        drum_name = g_gm_drum_names[event_ptr->data.note.note - 35];
+        drum_name = gm_get_drum_name(event_ptr->data.note.note);
       }
       else
       {
