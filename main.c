@@ -367,6 +367,11 @@ midi_thread(void * context_ptr)
       (unsigned int)event_ptr->time.time.tv_nsec);
     channel_str_ptr = g_string_new("");
 
+    /* Workaround for compiler warnings... */
+    drum_name = NULL;
+    note_name = NULL;
+    octave = 0;
+
     if (event_ptr->type == SND_SEQ_EVENT_NOTE ||
         event_ptr->type == SND_SEQ_EVENT_NOTEON ||
         event_ptr->type == SND_SEQ_EVENT_NOTEOFF ||
