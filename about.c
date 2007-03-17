@@ -15,6 +15,7 @@
 #include <gtk/gtk.h>
 
 #include "path.h"
+#include "config.h"
 
 static const gchar * authors[] =
 {
@@ -374,8 +375,8 @@ on_about_clicked(
   about = g_object_new(
     GTK_TYPE_ABOUT_DIALOG,
     "name", "GMIDImonitor",
-    "version", "2.1",
-    "copyright", "Copyright \xc2\xa9 2005 Nedko Arnaudov",
+    "version", PACKAGE_VERSION,
+    "copyright", "Copyright \xc2\xa9 2005,2006,2007 Nedko Arnaudov",
     "authors", authors,
     "comments", "GTK MIDI monitor.",
     "website", "https://gmidimonitor.bountysource.com/",

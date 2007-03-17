@@ -32,6 +32,7 @@ glade_signal_connect_func(
   {
     mod_self = g_module_open(NULL, 0);
     g_assert(mod_self != NULL);
+/*     g_warning("%p", mod_self); */
   }
 
 /*   g_print("glade_signal_connect_func:" */
@@ -40,58 +41,59 @@ glade_signal_connect_func(
 /*           cb_name, signal_name, */
 /*           signal_data, (unsigned int)obj, conn_after?"true":"false"); */
 
-  if (g_module_symbol(mod_self, cb_name, &handler_func))
+/*   g_warning("%s", g_module_name(mod_self)); */
+
+  if (!g_module_symbol(mod_self, cb_name, &handler_func))
   {
-    /* found callback */
-    if (conn_obj)
+    g_warning("callback function not found: %s", cb_name);
+    return;
+  }
+
+  /* found callback */
+  if (conn_obj)
+  {
+    if (conn_after)
     {
-      if (conn_after)
-      {
-        g_signal_connect_object(
-          obj,
-          signal_name, 
-          handler_func,
-          conn_obj,
-          G_CONNECT_AFTER);
-      }
-      else
-      {
-        g_signal_connect_object(
-          obj,
-          signal_name, 
-          handler_func,
-          conn_obj,
-          G_CONNECT_SWAPPED);
-      }
+      g_signal_connect_object(
+        obj,
+        signal_name, 
+        handler_func,
+        conn_obj,
+        G_CONNECT_AFTER);
     }
     else
     {
-      /* no conn_obj; use standard connect */
-      gpointer data = NULL;
-      
-      data = user_data;
-      
-      if (conn_after)
-      {
-        g_signal_connect_after(
-          obj,
-          signal_name, 
-          handler_func,
-          data);
-      }
-      else
-      {
-        g_signal_connect(
-          obj,
-          signal_name, 
-          handler_func,
-          data);
-      }
+      g_signal_connect_object(
+        obj,
+        signal_name, 
+        handler_func,
+        conn_obj,
+        G_CONNECT_SWAPPED);
     }
   }
   else
   {
-    g_warning("callback function not found: %s", cb_name);
+    /* no conn_obj; use standard connect */
+    gpointer data = NULL;
+      
+    data = user_data;
+      
+    if (conn_after)
+    {
+      g_signal_connect_after(
+        obj,
+        signal_name, 
+        handler_func,
+        data);
+    }
+    else
+    {
+      g_signal_connect(
+        obj,
+        signal_name, 
+        handler_func,
+        data);
+    }
   }
 }
 

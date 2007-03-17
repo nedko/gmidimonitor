@@ -22,9 +22,11 @@ PKG_CHECK_MODULES(LIBGLADE, libglade-2.0)
 
 PKG_CHECK_MODULES(GTHREAD, gthread-2.0)
 
+PKG_CHECK_MODULES(GMODULE, gmodule-2.0)
+
 # ALSA MIDI
 have_alsamidi="unknown"
-AC_ARG_ENABLE(alsamidi, [AS_HELP_STRING(--disable-alsamidi, [Disable ALSA MIDI support (no)])], [ have_alsamidi="no" ])
+AC_ARG_ENABLE(alsamidi, [AS_HELP_STRING(--disable-alsamidi, [Force disable ALSA MIDI support [default=no]])], [ have_alsamidi="no" ])
 if test "$have_alsamidi" = "unknown"
 then
   PKG_CHECK_MODULES(ALSA, alsa, have_alsamidi="yes")
@@ -32,7 +34,7 @@ fi
 
 # JACK MIDI
 have_jackmidi="unknown"
-AC_ARG_ENABLE(jackmidi, [AS_HELP_STRING(--disable-jackmidi, [Disable JACK MIDI support (no)])], [ have_jackmidi="no" ])
+AC_ARG_ENABLE(jackmidi, [AS_HELP_STRING(--disable-jackmidi, [Force disable JACK MIDI support [default=no]])], [ have_jackmidi="no" ])
 if test "$have_jackmidi" = "unknown"
 then
   PKG_CHECK_MODULES(JACK_MIDI, jack >= 0.102.0, AC_DEFINE([HAVE_JACK_MIDI], [], [Define if we have jack midi support.]) have_jackmidi="yes")
@@ -60,6 +62,10 @@ AC_MSG_RESULT([])
 AC_MSG_RESULT([Prefix:            $prefix])
 AC_MSG_RESULT([])
 AC_MSG_RESULT([JACK MIDI support: $have_jackmidi])
+if test "$have_jackmidi" = "yes"
+then
+  AC_MSG_RESULT([JACK MIDI support NOT IMPLEMENTED YET])
+fi
 AC_MSG_RESULT([ALSA MIDI support: $have_alsamidi])
 AC_MSG_RESULT([LASH support:      $have_lash])
 AC_MSG_RESULT([])
