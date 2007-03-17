@@ -25,9 +25,23 @@
 #include "config.h"
 
 #include <gtk/gtk.h>
-#include <alsa/asoundlib.h>
 #include <pthread.h>
 #include <signal.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+#ifdef HAVE_ALSA_MIDI
+#include <alsa/asoundlib.h>
+#endif
+
+#ifdef HAVE_JACK_MIDI
+#include <jack/jack.h>
+#include <jack/midiport.h>
+#endif
+
+#ifdef HAVE_OLD_JACK_MIDI
+#define jack_midi_get_event_count(port_buf, nframes) jack_midi_port_get_info(port_buf, nframes)->event_count
+#endif
 
 #ifdef HAVE_LASH
 #include <lash/lash.h>
@@ -35,10 +49,17 @@
 
 #include "path.h"
 #include "glade.h"
+#include "gm.h"
 
 GtkWidget * g_main_window_ptr;
 
+#ifdef HAVE_ALSA_MIDI
 snd_seq_t * g_seq_ptr;
+#endif
+
+#ifdef HAVE_JACK_MIDI
+jack_client_t * g_jack_client;
+#endif
 
 gboolean g_midi_ignore = FALSE;
 
@@ -48,6 +69,7 @@ int g_row_count;
 lash_client_t * g_lashc;
 #endif
 
+#ifdef HAVE_ALSA_MIDI
 static const char * g_note_names[12] = 
 {
   "C",
@@ -63,192 +85,7 @@ static const char * g_note_names[12] =
   "A#",
   "B",
 };
-
-static const char * g_gm_instrument_names[] = 
-{
-  "Acoustic Grand Piano",       /* 1 */
-  "Bright Acoustic Piano",      /* 2 */
-  "Electric Grand Piano",       /* 3 */
-  "Honky-tonk Piano",           /* 4 */
-  "Electric Piano 1",           /* 5 */
-  "Electric Piano 2",           /* 6 */
-  "Harpsichord",                /* 7 */
-  "Clavi",                      /* 8 */
-  "Celesta",                    /* 9 */
-  "Glockenspiel",               /* 10 */
-  "Music Box",                  /* 11 */
-  "Vibraphone",                 /* 12 */
-  "Marimba",                    /* 13 */
-  "Xylophone",                  /* 14 */
-  "Tubular Bells",              /* 15 */
-  "Dulcimer",                   /* 16 */
-  "Drawbar Organ",              /* 17 */
-  "Percussive Organ",           /* 18 */
-  "Rock Organ",                 /* 19 */
-  "Church Organ",               /* 20 */
-  "Reed Organ",                 /* 21 */
-  "Accordion",                  /* 22 */
-  "Harmonica",                  /* 23 */
-  "Tango Accordion",            /* 24 */
-  "Acoustic Guitar (nylon)",    /* 25 */
-  "Acoustic Guitar (steel)",    /* 26 */
-  "Electric Guitar (jazz)",     /* 27 */
-  "Electric Guitar (clean)",    /* 28 */
-  "Electric Guitar (muted)",    /* 29 */
-  "Overdriven Guitar",          /* 30 */
-  "Distortion Guitar",          /* 31 */
-  "Guitar harmonics",           /* 32 */
-  "Acoustic Bass",              /* 33 */
-  "Electric Bass (finger)",     /* 34 */
-  "Electric Bass (pick)",       /* 35 */
-  "Fretless Bass",              /* 36 */
-  "Slap Bass 1",                /* 37 */
-  "Slap Bass 2",                /* 38 */
-  "Synth Bass 1",               /* 39 */
-  "Synth Bass 2",               /* 40 */
-  "Violin",                     /* 41 */
-  "Viola",                      /* 42 */
-  "Cello",                      /* 43 */
-  "Contrabass",                 /* 44 */
-  "Tremolo Strings",            /* 45 */
-  "Pizzicato Strings",          /* 46 */
-  "Orchestral Harp",            /* 47 */
-  "Timpani",                    /* 48 */
-  "String Ensemble 1",          /* 49 */
-  "String Ensemble 2",          /* 50 */
-  "SynthStrings 1",             /* 51 */
-  "SynthStrings 2",             /* 52 */
-  "Choir Aahs",                 /* 53 */
-  "Voice Oohs",                 /* 54 */
-  "Synth Voice",                /* 55 */
-  "Orchestra Hit",              /* 56 */
-  "Trumpet",                    /* 57 */
-  "Trombone",                   /* 58 */
-  "Tuba",                       /* 59 */
-  "Muted Trumpet",              /* 60 */
-  "French Horn",                /* 61 */
-  "Brass Section",              /* 62 */
-  "SynthBrass 1",               /* 63 */
-  "SynthBrass 2",               /* 64 */
-  "Soprano Sax",                /* 65 */
-  "Alto Sax",                   /* 66 */
-  "Tenor Sax",                  /* 67 */
-  "Baritone Sax",               /* 68 */
-  "Oboe",                       /* 69 */
-  "English Horn",               /* 70 */
-  "Bassoon",                    /* 71 */
-  "Clarinet",                   /* 72 */
-  "Piccolo",                    /* 73 */
-  "Flute",                      /* 74 */
-  "Recorder",                   /* 75 */
-  "Pan Flute",                  /* 76 */
-  "Blown Bottle",               /* 77 */
-  "Shakuhachi",                 /* 78 */
-  "Whistle",                    /* 79 */
-  "Ocarina",                    /* 80 */
-  "Lead 1 (square)",            /* 81 */
-  "Lead 2 (sawtooth)",          /* 82 */
-  "Lead 3 (calliope)",          /* 83 */
-  "Lead 4 (chiff)",             /* 84 */
-  "Lead 5 (charang)",           /* 85 */
-  "Lead 6 (voice)",             /* 86 */
-  "Lead 7 (fifths)",            /* 87 */
-  "Lead 8 (bass + lead)",       /* 88 */
-  "Pad 1 (new age)",            /* 89 */
-  "Pad 2 (warm)",               /* 90 */
-  "Pad 3 (polysynth)",          /* 91 */
-  "Pad 4 (choir)",              /* 92 */
-  "Pad 5 (bowed)",              /* 93 */
-  "Pad 6 (metallic)",           /* 94 */
-  "Pad 7 (halo)",               /* 95 */
-  "Pad 8 (sweep)",              /* 96 */
-  "FX 1 (rain)",                /* 97 */
-  "FX 2 (soundtrack)",          /* 98 */
-  "FX 3 (crystal)",             /* 99 */
-  "FX 4 (atmosphere)",          /* 100 */
-  "FX 5 (brightness)",          /* 101 */
-  "FX 6 (goblins)",             /* 102 */
-  "FX 7 (echoes)",              /* 103 */
-  "FX 8 (sci-fi)",              /* 104 */
-  "Sitar",                      /* 105 */
-  "Banjo",                      /* 106 */
-  "Shamisen",                   /* 107 */
-  "Koto",                       /* 108 */
-  "Kalimba",                    /* 109 */
-  "Bag pipe",                   /* 110 */
-  "Fiddle",                     /* 111 */
-  "Shanai",                     /* 112 */
-  "Tinkle Bell",                /* 113 */
-  "Agogo",                      /* 114 */
-  "Steel Drums",                /* 115 */
-  "Woodblock",                  /* 116 */
-  "Taiko Drum",                 /* 117 */
-  "Melodic Tom",                /* 118 */
-  "Synth Drum",                 /* 119 */
-  "Reverse Cymbal",             /* 120 */
-  "Guitar Fret Noise",          /* 121 */
-  "Breath Noise",               /* 122 */
-  "Seashore",                   /* 123 */
-  "Bird Tweet",                 /* 124 */
-  "Telephone Ring",             /* 125 */
-  "Helicopter",                 /* 126 */
-  "Applause",                   /* 127 */
-  "Gunshot",                    /* 128 */
-};
-
-#define GM_DRUM_FIRST_NOTE 35
-#define GM_DRUM_NOTES_COUNT (sizeof(g_gm_drum_names) / sizeof(g_gm_drum_names[0]))
-
-static const char * g_gm_drum_names[] =
-{
-  "Acoustic Bass Drum",         /* 35 */
-  "Bass Drum 1",                /* 36 */
-  "Side Stick",                 /* 37 */
-  "Acoustic Snare",             /* 38 */
-  "Hand Clap",                  /* 39 */
-  "Electric Snare",             /* 40 */
-  "Low Floor Tom",              /* 41 */
-  "Closed Hi-Hat",              /* 42 */
-  "High Floor Tom",             /* 43 */
-  "Pedal Hi-Hat",               /* 44 */
-  "Low Tom",                    /* 45 */
-  "Open Hi-Hat",                /* 46 */
-  "Low-Mid Tom",                /* 47 */
-  "Hi-Mid Tom",                 /* 48 */
-  "Crash Cymbal 1",             /* 49 */
-  "High Tom",                   /* 50 */
-  "Ride Cymbal 1",              /* 51 */
-  "Chinese Cymbal",             /* 52 */
-  "Ride Bell",                  /* 53 */
-  "Tambourine",                 /* 54 */
-  "Splash Cymbal",              /* 55 */
-  "Cowbell",                    /* 56 */
-  "Crash Cymbal 2",             /* 57 */
-  "Vibraslap",                  /* 58 */
-  "Ride Cymbal 2",              /* 59 */
-  "Hi Bongo",                   /* 60 */
-  "Low Bongo",                  /* 61 */
-  "Mute Hi Conga",              /* 62 */
-  "Open Hi Conga",              /* 63 */
-  "Low Conga",                  /* 64 */
-  "High Timbale",               /* 65 */
-  "Low Timbale",                /* 66 */
-  "High Agogo",                 /* 67 */
-  "Low Agogo",                  /* 68 */
-  "Cabasa",                     /* 69 */
-  "Maracas",                    /* 70 */
-  "Short Whistle",              /* 71 */
-  "Long Whistle",               /* 72 */
-  "Short Guiro",                /* 73 */
-  "Long Guiro",                 /* 74 */
-  "Claves",                     /* 75 */
-  "Hi Wood Block",              /* 76 */
-  "Low Wood Block",             /* 77 */
-  "Mute Cuica",                 /* 78 */
-  "Open Cuica",                 /* 79 */
-  "Mute Triangle",              /* 80 */
-  "Open Triangle",              /* 81 */
-};
+#endif
 
 enum
 {
@@ -353,24 +190,10 @@ void on_clear_clicked
   g_row_count = 0;
 }
 
-const char *
-gm_get_drum_name(
-  unsigned char note)
-{
-  if (note >= GM_DRUM_FIRST_NOTE &&
-      note < GM_DRUM_FIRST_NOTE + GM_DRUM_NOTES_COUNT)
-  {
-    return g_gm_drum_names[note - GM_DRUM_FIRST_NOTE];
-  }
-  else
-  {
-    return NULL;
-  }
-}
-
-/* The midi input handling thread */
+#ifdef HAVE_ALSA_MIDI
+/* The ALSA MIDI input handling thread */
 void *
-midi_thread(void * context_ptr)
+alsa_midi_thread(void * context_ptr)
 {
   GtkTreeIter iter;
   snd_seq_event_t * event_ptr;
@@ -738,9 +561,7 @@ midi_thread(void * context_ptr)
         msg_str_ptr,
         "Program change, %d (%s)",
         (unsigned int)event_ptr->data.control.value,
-        event_ptr->data.control.value >= sizeof(g_gm_instrument_names)/sizeof(g_gm_instrument_names[0])?
-        "???":
-        g_gm_instrument_names[event_ptr->data.control.value]);
+        event_ptr->data.control.value > 127 || event_ptr->data.control.value < 0 ? "???": gm_get_instrument_name(event_ptr->data.control.value));
       break;
     case SND_SEQ_EVENT_CHANPRESS:
       g_string_sprintf(msg_str_ptr, "Channel pressure");
@@ -1176,6 +997,18 @@ midi_thread(void * context_ptr)
   return NULL;
 }
 
+#endif  /* #ifdef HAVE_ALSA_MIDI */
+
+#ifdef HAVE_JACK_MIDI
+
+int
+process(jack_nframes_t nframes, void *arg)
+{
+	return 0;
+}
+
+#endif
+
 #ifdef HAVE_LASH
 
 void
@@ -1248,12 +1081,14 @@ int
 main(int argc, char *argv[])
 {
   int ret;
+#ifdef HAVE_ALSA_MIDI
   snd_seq_port_info_t * port_info = NULL;
   pthread_t midi_tid;
+#endif
 #ifdef HAVE_LASH
   lash_event_t * lash_event_ptr;
 #endif
-  GString * seq_client_name_str_ptr;
+  GString * client_name_str_ptr;
 
   /* init threads */
   g_thread_init(NULL);
@@ -1287,7 +1122,40 @@ main(int argc, char *argv[])
   /* interface creation */
   create_mainwindow();
 
-  /* initialisation */
+  client_name_str_ptr = g_string_new("");
+  g_string_sprintf(client_name_str_ptr, "MIDI monitor (%u)", (unsigned int)getpid());
+
+#ifdef HAVE_JACK_MIDI
+  /* JACK client initialization */
+  {
+    jack_port_t * input_port;
+
+    if ((g_jack_client = jack_client_new(client_name_str_ptr->str)) == 0)
+    {
+      fprintf(stderr, "jack server not running?\n");
+      return 1;
+    }
+
+    ret = jack_set_process_callback(g_jack_client, process, 0);
+    /* TODO: error handling */
+
+/*     jack_set_sample_rate_callback(g_jack_client, srate, 0); */
+
+/*     jack_on_shutdown(g_jack_client, jack_shutdown, 0); */
+
+    input_port = jack_port_register(g_jack_client, "midi_in", JACK_DEFAULT_MIDI_TYPE, JackPortIsInput, 0);
+
+    if (jack_activate(g_jack_client))
+    {
+      /* TODO: proper (goto) error handling */
+      fprintf(stderr, "cannot activate client");
+      return 1;
+    }
+  }
+#endif  /* #ifdef HAVE_JACK_MIDI */
+
+#ifdef HAVE_ALSA_MIDI
+  /* ALSA MIDI initialisation */
   ret = snd_seq_open(
     &g_seq_ptr,
     "default",
@@ -1299,9 +1167,7 @@ main(int argc, char *argv[])
     goto path_uninit;
   }
 
-  seq_client_name_str_ptr = g_string_new("");
-  g_string_sprintf(seq_client_name_str_ptr, "MIDI monitor (%u)", (unsigned int)getpid());
-  snd_seq_set_client_name(g_seq_ptr, seq_client_name_str_ptr->str);
+  snd_seq_set_client_name(g_seq_ptr, client_name_str_ptr->str);
 
 #ifdef HAVE_LASH
   lash_alsa_client_id(g_lashc, snd_seq_client_id(g_seq_ptr));
@@ -1330,11 +1196,13 @@ main(int argc, char *argv[])
   }
 
   /* Start midi thread */
-  ret = pthread_create(&midi_tid, NULL, midi_thread, NULL);
+  ret = pthread_create(&midi_tid, NULL, alsa_midi_thread, NULL);
+#endif  /* #ifdef HAVE_ALSA_MIDI */
 
   /* main loop */
   gtk_main();
 
+#ifdef HAVE_ALSA_MIDI
   /* Cancel the thread. Don't know better way.
      Poll or unblock mechanisms seem to not be
      available for alsa sequencer */
@@ -1342,9 +1210,15 @@ main(int argc, char *argv[])
 
   /* Wait midi thread to finish */
   ret = pthread_join(midi_tid, NULL);
+#endif  /* #ifdef HAVE_ALSA_MIDI */
+
+#ifdef HAVE_JACK_MIDI
+  jack_client_close(g_jack_client);
+#endif  /* #ifdef HAVE_JACK_MIDI */
 
   gdk_threads_leave();
 
+#ifdef HAVE_ALSA_MIDI
 close_seq:
   ret = snd_seq_close(g_seq_ptr);
   if (ret < 0)
@@ -1353,6 +1227,7 @@ close_seq:
   }
 
 path_uninit:
+#endif  /* #ifdef HAVE_ALSA_MIDI */
   path_init(argv[0]);
 
   return 0;
