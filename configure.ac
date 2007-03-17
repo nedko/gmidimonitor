@@ -50,6 +50,8 @@ then
   PKG_CHECK_MODULES(ALSA, alsa, AC_DEFINE([HAVE_ALSA_MIDI], [], [Defined if we have ALSA MIDI support.]) have_alsamidi="yes")
 fi
 
+AM_CONDITIONAL(HAVE_ALSA_MIDI, test "$have_alsamidi" = "yes")
+
 # JACK MIDI
 have_jackmidi="unknown"
 AC_ARG_ENABLE(jackmidi, [AS_HELP_STRING(--disable-jackmidi, [Force disable JACK MIDI support [default=no]])], [ have_jackmidi="no" ])
@@ -61,6 +63,8 @@ then
     PKG_CHECK_MODULES(OLD_JACK_MIDI, jack < 0.102.27, have_jackmidi="yes (old one)" AC_DEFINE(HAVE_OLD_JACK_MIDI, 1, [whether or not we building against old JACK MIDI (0.102.20)]), echo no)
   fi
 fi
+
+AM_CONDITIONAL(HAVE_JACK_MIDI, test "$have_jackmidi" = "yes")
 
 if test "$have_alsamidi" != "yes" -a "$have_jackmidi" != "yes"
 then
