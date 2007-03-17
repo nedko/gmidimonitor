@@ -1,0 +1,17 @@
+#!/bin/sh
+
+if test x$1 = xclean
+then
+  GENERATED="aclocal.m4 autom4te.cache config.h.in configure config Makefile.in"
+  set -x
+  if test -f Makefile; then make distclean; fi
+  rm -rf ${GENERATED}
+else
+  set -x
+  mkdir -p config
+  aclocal -I config
+  libtoolize --copy --force
+  autoheader
+  automake --foreign --add-missing --copy
+  autoconf
+fi
