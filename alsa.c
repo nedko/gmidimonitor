@@ -409,7 +409,7 @@ alsa_midi_thread(void * context_ptr)
       g_string_sprintf(
         msg_str_ptr,
         "Pitchwheel, %d",
-        (unsigned int)event_ptr->data.control.value);
+        (signed int)event_ptr->data.control.value);
       break;
     case SND_SEQ_EVENT_CONTROL14:
       g_string_sprintf(msg_str_ptr, "14 bit controller value");
