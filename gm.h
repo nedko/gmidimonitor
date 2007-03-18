@@ -31,4 +31,8 @@ const char *
 gm_get_instrument_name(
   unsigned char program);
 
+const char *
+gm_get_controller_name(
+  unsigned int controller);
+
 #endif /* #ifndef GM_H__6EE298F4_A33F_4DFD_8E38_49F00997E455__INCLUDED */
