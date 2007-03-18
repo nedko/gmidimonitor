@@ -34,6 +34,7 @@
 #include "log.h"
 #include "list.h"
 #include "glade.h"
+#include "gm.h"
 
 #ifdef HAVE_OLD_JACK_MIDI
 #define jack_midi_get_event_count(port_buf, nframes) jack_midi_port_get_info(port_buf, nframes)->event_count
@@ -142,6 +143,9 @@ jack_midi_decode(
   unsigned int velocity;
   const char * note_name;
   unsigned int octave;
+  unsigned int controller;
+  unsigned int value;
+  const char * controller_name;
 
   if (buffer_size == 1 && buffer[0] == 0xFE)
   {
@@ -211,10 +215,106 @@ jack_midi_decode(
     return TRUE;
   }
 
+  if (buffer_size == 3 && (buffer[0] >> 4) == 0x0A)
+  {
+    channel = (buffer[0] & 0x0F) + 1; /* 1 .. 16 */
+    assert(channel >= 1 && channel <= 16);
+
+    note = buffer[1];
+    if (note > 127)
+    {
+      goto unknown_event;
+    }
+
+    velocity = buffer[2];
+    if (velocity > 127)
+    {
+      goto unknown_event;
+    }
+
+    note_name = g_note_names[note % 12];
+    octave = note / 12 - 1;
+
+    g_string_sprintf(channel_str_ptr, "%u", channel);
+
+    g_string_sprintf(
+      msg_str_ptr,
+      "Polyphonic Key Pressure (Aftertouch), %s, octave %d, velocity %u",
+      note_name,
+      octave,
+      velocity);
+
+    return TRUE;
+  }
+
+  if (buffer_size == 3 && (buffer[0] >> 4) == 0x0B)
+  {
+    channel = (buffer[0] & 0x0F) + 1; /* 1 .. 16 */
+    assert(channel >= 1 && channel <= 16);
+
+    controller = buffer[1];
+    if (controller > 127)
+    {
+      goto unknown_event;
+    }
+
+    value = buffer[2];
+    if (value > 127)
+    {
+      goto unknown_event;
+    }
+
+    g_string_sprintf(channel_str_ptr, "%u", channel);
+
+    controller_name = gm_get_controller_name(controller);
+
+    if (controller_name != NULL)
+    {
+      g_string_sprintf(
+        msg_str_ptr,
+        "CC %s (%u), value %u",
+        controller_name,
+        controller,
+        value);
+    }
+    else
+    {
+      g_string_sprintf(
+        msg_str_ptr,
+        "CC %u, value %u",
+        controller,
+        value);
+    }
+
+    return TRUE;
+  }
+
+  if (buffer_size == 2 && (buffer[0] >> 4) == 0x0C)
+  {
+    channel = (buffer[0] & 0x0F) + 1; /* 1 .. 16 */
+    assert(channel >= 1 && channel <= 16);
+
+    value = buffer[1];
+    if (value > 127)
+    {
+      goto unknown_event;
+    }
+
+    g_string_sprintf(channel_str_ptr, "%u", channel);
+
+    g_string_sprintf(
+      msg_str_ptr,
+      "Program change, %d (%s)",
+      value,
+      gm_get_instrument_name(value));
+
+    return TRUE;
+  }
+
 unknown_event:
   g_string_sprintf(
     msg_str_ptr,
-    "unknown midi event with size %u bytes: ",
+    "unknown midi event with size %u bytes:",
     (unsigned int)buffer_size);
 
   for (i = 0 ; i < buffer_size ; i++)
@@ -347,7 +447,7 @@ loop:
   //LOG_DEBUG("waiting for more events...");
 
   //pthread_cond_wait(&g_jack_midi_cond, &g_jack_midi_mutex);
-  usleep(100000);
+  usleep(10000);
 
   goto loop;
 }
