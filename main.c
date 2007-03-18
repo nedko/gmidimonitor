@@ -270,6 +270,8 @@ main(int argc, char *argv[])
   client_name_str_ptr = g_string_new("");
   g_string_sprintf(client_name_str_ptr, "MIDI monitor (%u)", (unsigned int)getpid());
 
+  g_row_count = 0;
+
 #ifdef HAVE_JACK_MIDI
   if (!jack_init(client_name_str_ptr->str))
   {

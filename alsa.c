@@ -54,8 +54,6 @@ alsa_midi_thread(void * context_ptr)
 
   list_store_ptr = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(child_ptr)));
 
-  g_row_count = 0;
-
   while (snd_seq_event_input(g_seq_ptr, &event_ptr) >= 0)
   {
     if (g_midi_ignore)
@@ -829,10 +827,10 @@ alsa_midi_thread(void * context_ptr)
     /* Is it a bug that it does not update automagically ? */
     gtk_container_check_resize(GTK_CONTAINER(child_ptr));
 
+    g_row_count++;
+
     /* release GTK thread lock */
     gdk_threads_leave();
-
-    g_row_count++;
   }
 
   return NULL;

@@ -26,11 +26,13 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "common.h"
 #include "jack.h"
 #include "memory_atomic.h"
-#define LOG_LEVEL LOG_LEVEL_DEBUG
+//#define LOG_LEVEL LOG_LEVEL_DEBUG
 #include "log.h"
 #include "list.h"
+#include "glade.h"
 
 #ifdef HAVE_OLD_JACK_MIDI
 #define jack_midi_get_event_count(port_buf, nframes) jack_midi_port_get_info(port_buf, nframes)->event_count
@@ -126,14 +128,38 @@ jack_process(jack_nframes_t nframes, void * context)
   return 0;
 }
 
+void
+jack_midi_decode(
+  void * buffer,
+  size_t buffer_size,
+  GString * time_str_ptr,
+  GString * msg_str_ptr,
+  GString * channel_str_ptr)
+{
+  g_string_sprintf(
+    msg_str_ptr,
+    "midi event with size %u bytes",
+    (unsigned int)buffer_size);
+}
+
 /* The JACK MIDI input handling thread */
 void *
 jack_midi_thread(void * context_ptr)
 {
   struct jack_midi_event_buffer * event_buffer;
   struct list_head * node_ptr;
+  GtkListStore * list_store_ptr;
+  GtkWidget * child_ptr;
+  GtkTreeIter iter;
+  GString * time_str_ptr;
+  GString * msg_str_ptr;
+  GString * channel_str_ptr;
 
   LOG_DEBUG("jack_midi_thread started");
+
+  child_ptr = get_glade_widget_child(g_main_window_ptr, "list");
+
+  list_store_ptr = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(child_ptr)));
 
 loop:
   pthread_mutex_lock(&g_jack_midi_mutex);
@@ -159,6 +185,64 @@ loop:
     event_buffer = list_entry(node_ptr, struct jack_midi_event_buffer, siblings);
 
     LOG_DEBUG("midi event with size %u received.", (unsigned int)event_buffer->buffer_size);
+
+    time_str_ptr = g_string_new("");
+    channel_str_ptr = g_string_new("");
+    msg_str_ptr = g_string_new("unknown event");
+
+    jack_midi_decode(
+      event_buffer->buffer,
+      event_buffer->buffer_size,
+      time_str_ptr,
+      msg_str_ptr,
+      channel_str_ptr);
+
+    /* get GTK thread lock */
+    gdk_threads_enter();
+
+    if (g_row_count >= MAX_LIST_SIZE)
+    {
+      gtk_tree_model_get_iter_first(
+        GTK_TREE_MODEL(list_store_ptr),
+        &iter);
+
+      gtk_list_store_remove(
+        list_store_ptr,
+        &iter);
+    }
+
+    /* Append an empty row to the list store. Iter will point to the new row */
+    gtk_list_store_append(list_store_ptr, &iter);
+
+    gtk_list_store_set(
+      list_store_ptr,
+      &iter,
+      COL_TIME, time_str_ptr->str,
+      COL_CHANNEL, channel_str_ptr->str,
+      COL_MESSAGE, msg_str_ptr->str,
+      -1);
+
+    g_string_free(channel_str_ptr, TRUE);
+    g_string_free(msg_str_ptr, TRUE);
+
+    gtk_tree_view_scroll_to_cell(
+      GTK_TREE_VIEW(child_ptr),
+      gtk_tree_model_get_path(
+        gtk_tree_view_get_model(GTK_TREE_VIEW(child_ptr)),
+        &iter),
+      NULL,
+      TRUE,
+      0.0,
+      1.0);
+
+    /* Force update of scroll position. */
+    /* Is it a bug that it does not update automagically ? */
+    gtk_container_check_resize(GTK_CONTAINER(child_ptr));
+
+    g_row_count++;
+
+    /* release GTK thread lock */
+    gdk_threads_leave();
 
     rtsafe_memory_deallocate(event_buffer);
   }
