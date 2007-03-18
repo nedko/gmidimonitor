@@ -134,7 +134,7 @@ alsa_midi_thread(void * context_ptr)
         {
           g_string_sprintf(
             msg_str_ptr,
-            "Note on , %s, octave %d, velocity %u",
+            "Note on, %s, octave %d, velocity %u",
             note_name,
             octave,
             event_ptr->data.note.velocity);
