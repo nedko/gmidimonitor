@@ -25,6 +25,7 @@
 #include <gtk/gtk.h>
 #include <string.h>
 #include <unistd.h>
+#include <assert.h>
 
 #include "common.h"
 #include "jack.h"
@@ -128,18 +129,103 @@ jack_process(jack_nframes_t nframes, void * context)
   return 0;
 }
 
-void
+gboolean
 jack_midi_decode(
-  void * buffer,
+  guint8 * buffer,
   size_t buffer_size,
-  GString * time_str_ptr,
   GString * msg_str_ptr,
   GString * channel_str_ptr)
 {
+  size_t i;
+  unsigned int channel;
+  unsigned int note;
+  unsigned int velocity;
+  const char * note_name;
+  unsigned int octave;
+
+  if (buffer_size == 1 && buffer[0] == 0xFE)
+  {
+    g_string_sprintf(msg_str_ptr, "Active sensing");
+    return FALSE;               /* disable */
+  }
+
+  if (buffer_size == 3 && (buffer[0] >> 4) == 0x08)
+  {
+    channel = (buffer[0] & 0x0F) + 1; /* 1 .. 16 */
+    assert(channel >= 1 && channel <= 16);
+
+    note = buffer[1];
+    if (note > 127)
+    {
+      goto unknown_event;
+    }
+
+    velocity = buffer[2];
+    if (velocity > 127)
+    {
+      goto unknown_event;
+    }
+
+    note_name = g_note_names[note % 12];
+    octave = note / 12 - 1;
+
+    g_string_sprintf(
+      msg_str_ptr,
+      "Note off, %s, octave %d, velocity %u",
+      note_name,
+      octave,
+      velocity);
+
+    return TRUE;
+  }
+
+  if (buffer_size == 3 && (buffer[0] >> 4) == 0x09)
+  {
+    channel = (buffer[0] & 0x0F) + 1; /* 1 .. 16 */
+    assert(channel >= 1 && channel <= 16);
+
+    note = buffer[1];
+    if (note > 127)
+    {
+      goto unknown_event;
+    }
+
+    velocity = buffer[2];
+    if (velocity > 127)
+    {
+      goto unknown_event;
+    }
+
+    note_name = g_note_names[note % 12];
+    octave = note / 12 - 1;
+
+    g_string_sprintf(channel_str_ptr, "%u", channel);
+
+    g_string_sprintf(
+      msg_str_ptr,
+      "Note on, %s, octave %d, velocity %u",
+      note_name,
+      octave,
+      velocity);
+
+    return TRUE;
+  }
+
+unknown_event:
   g_string_sprintf(
     msg_str_ptr,
-    "midi event with size %u bytes",
+    "unknown midi event with size %u bytes: ",
     (unsigned int)buffer_size);
+
+  for (i = 0 ; i < buffer_size ; i++)
+  {
+    g_string_append_printf(
+      msg_str_ptr,
+      " %02X",
+      (unsigned int)(buffer[i]));
+  }
+
+  return TRUE;
 }
 
 /* The JACK MIDI input handling thread */
@@ -184,18 +270,26 @@ loop:
 
     event_buffer = list_entry(node_ptr, struct jack_midi_event_buffer, siblings);
 
+    if (g_midi_ignore)
+    {
+      goto deallocate_event;
+    }
+
     LOG_DEBUG("midi event with size %u received.", (unsigned int)event_buffer->buffer_size);
 
     time_str_ptr = g_string_new("");
     channel_str_ptr = g_string_new("");
-    msg_str_ptr = g_string_new("unknown event");
+    msg_str_ptr = g_string_new("");
 
-    jack_midi_decode(
-      event_buffer->buffer,
-      event_buffer->buffer_size,
-      time_str_ptr,
-      msg_str_ptr,
-      channel_str_ptr);
+    if (!jack_midi_decode(
+          event_buffer->buffer,
+          event_buffer->buffer_size,
+          msg_str_ptr,
+          channel_str_ptr))
+    {
+      /* ignoring specific event */
+      goto deallocate_event;
+    }
 
     /* get GTK thread lock */
     gdk_threads_enter();
@@ -244,6 +338,7 @@ loop:
     /* release GTK thread lock */
     gdk_threads_leave();
 
+  deallocate_event:
     rtsafe_memory_deallocate(event_buffer);
   }
 
