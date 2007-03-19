@@ -275,14 +275,14 @@ main(int argc, char *argv[])
 #ifdef HAVE_JACK_MIDI
   if (!jack_init(client_name_str_ptr->str))
   {
-    /* TODO: error handling */
+    goto fail;
   }
 #endif
 
 #ifdef HAVE_ALSA_MIDI
   if (!alsa_init(client_name_str_ptr->str))
   {
-    /* TODO: error handling */
+    goto fail_uninit_jack;
   }
 #endif
 
@@ -291,10 +291,14 @@ main(int argc, char *argv[])
 
 #ifdef HAVE_ALSA_MIDI
   alsa_uninit();
+
+fail_uninit_jack:
 #endif
 
 #ifdef HAVE_JACK_MIDI
   jack_uninit();
+
+fail:
 #endif
 
   gdk_threads_leave();

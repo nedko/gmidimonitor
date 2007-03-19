@@ -20,9 +20,9 @@
 #
 
 AC_PREREQ(2.61)
-AC_INIT(gmidimonitor, 3)
+AC_INIT(gmidimonitor, 3.0)
 AC_CONFIG_AUX_DIR(config)
-AM_INIT_AUTOMAKE(gmidimonitor, 3)
+AM_INIT_AUTOMAKE(gmidimonitor, 3.0)
 AC_CONFIG_HEADER([config.h])
 
 #AS_AC_EXPAND(DATADIR, $datadir)
@@ -88,10 +88,6 @@ AC_MSG_RESULT([])
 AC_MSG_RESULT([Prefix:            $prefix])
 AC_MSG_RESULT([])
 AC_MSG_RESULT([JACK MIDI support: $have_jackmidi])
-if test "$have_jackmidi" = "yes"
-then
-  AC_MSG_RESULT([JACK MIDI support NOT IMPLEMENTED YET])
-fi
 AC_MSG_RESULT([ALSA MIDI support: $have_alsamidi])
 AC_MSG_RESULT([LASH support:      $have_lash])
 AC_MSG_RESULT([])
