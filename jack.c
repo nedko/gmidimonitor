@@ -35,6 +35,7 @@
 #include "list.h"
 #include "glade.h"
 #include "gm.h"
+#include "sysex.h"
 
 #ifdef HAVE_OLD_JACK_MIDI
 #define jack_midi_get_event_count(port_buf, nframes) jack_midi_port_get_info(port_buf, nframes)->event_count
@@ -146,6 +147,8 @@ jack_midi_decode(
   unsigned int controller;
   unsigned int value;
   const char * controller_name;
+  signed int pitch;
+  const char * drum_name;
 
   if (buffer_size == 1 && buffer[0] == 0xFE)
   {
@@ -157,6 +160,11 @@ jack_midi_decode(
   {
     channel = (buffer[0] & 0x0F) + 1; /* 1 .. 16 */
     assert(channel >= 1 && channel <= 16);
+
+    if (channel == 10)
+    {
+      return FALSE;                                 /* ignore note off for drums */
+    }
 
     note = buffer[1];
     if (note > 127)
@@ -205,12 +213,39 @@ jack_midi_decode(
 
     g_string_sprintf(channel_str_ptr, "%u", channel);
 
-    g_string_sprintf(
-      msg_str_ptr,
-      "Note on, %s, octave %d, velocity %u",
-      note_name,
-      octave,
-      velocity);
+    if (channel == 10)
+    {
+      drum_name = gm_get_drum_name(note);
+    }
+    else
+    {
+      drum_name = NULL;
+    }
+
+    if (drum_name != NULL)
+    {
+      if (velocity == 0)
+      {
+        return FALSE;                                 /* ignore note off for drums */
+      }
+
+      g_string_sprintf(
+        msg_str_ptr,
+        "Drum: %s (%s, octave %d, velocity %u)",
+        drum_name,
+        note_name,
+        octave,
+        velocity);
+    }
+    else
+    {
+      g_string_sprintf(
+        msg_str_ptr,
+        "Note on, %s, octave %d, velocity %u",
+        note_name,
+        octave,
+        velocity);
+    }
 
     return TRUE;
   }
@@ -311,6 +346,30 @@ jack_midi_decode(
     return TRUE;
   }
 
+  if (buffer_size == 3 && (buffer[0] >> 4) == 0x0E && buffer[1] <= 127 && buffer[1] <= 127)
+  {
+    channel = (buffer[0] & 0x0F) + 1; /* 1 .. 16 */
+    assert(channel >= 1 && channel <= 16);
+
+    pitch = buffer[1];
+    pitch |= (unsigned int)buffer[2] << 7;
+    pitch -= 0x2000;
+
+    g_string_sprintf(channel_str_ptr, "%u", channel);
+
+    g_string_sprintf(
+      msg_str_ptr,
+      "Pitchwheel, %d",
+      pitch);
+
+    return TRUE;
+  }
+
+  if (buffer_size > 0 && buffer[0] == 0xF0)
+  {
+    decode_sysex(buffer, buffer_size, msg_str_ptr);
+  }
+
 unknown_event:
   g_string_sprintf(
     msg_str_ptr,
@@ -388,7 +447,7 @@ loop:
           channel_str_ptr))
     {
       /* ignoring specific event */
-      goto deallocate_event;
+      goto deallocate_strings;
     }
 
     /* get GTK thread lock */
@@ -416,9 +475,6 @@ loop:
       COL_MESSAGE, msg_str_ptr->str,
       -1);
 
-    g_string_free(channel_str_ptr, TRUE);
-    g_string_free(msg_str_ptr, TRUE);
-
     gtk_tree_view_scroll_to_cell(
       GTK_TREE_VIEW(child_ptr),
       gtk_tree_model_get_path(
@@ -437,6 +493,11 @@ loop:
 
     /* release GTK thread lock */
     gdk_threads_leave();
+
+  deallocate_strings:
+    g_string_free(channel_str_ptr, TRUE);
+    g_string_free(msg_str_ptr, TRUE);
+    g_string_free(time_str_ptr, TRUE);
 
   deallocate_event:
     rtsafe_memory_deallocate(event_buffer);
