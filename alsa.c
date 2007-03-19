@@ -28,6 +28,7 @@
 #include "alsa.h"
 #include "glade.h"
 #include "gm.h"
+#include "sysex.h"
 
 snd_seq_t * g_seq_ptr;
 pthread_t g_alsa_midi_tid;      /* alsa_midi_thread id */
@@ -47,8 +48,6 @@ alsa_midi_thread(void * context_ptr)
   int octave;
   const char * drum_name;
   const char * cc_name;
-  int i;
-  const char * mmc_command_name;
 
   child_ptr = get_glade_widget_child(g_main_window_ptr, "list");
 
@@ -620,150 +619,10 @@ alsa_midi_thread(void * context_ptr)
       g_string_sprintf(msg_str_ptr, "instrument change");
       break;
     case SND_SEQ_EVENT_SYSEX:
-      /* General MMC decoding, as seen at http://www.borg.com/~jglatt/tech/mmc.htm and
-         extended from "Advanced User Guide for MK-449C MIDI keyboard" info */
-      if (event_ptr->data.ext.len == 6 &&
-          ((guint8 *)event_ptr->data.ext.ptr)[0] == 0xF0 &&
-          ((guint8 *)event_ptr->data.ext.ptr)[1] == 0x7F &&
-          ((guint8 *)event_ptr->data.ext.ptr)[3] == 0x06 &&
-          ((guint8 *)event_ptr->data.ext.ptr)[5] == 0xF7)
-      {
-        switch (((guint8 *)event_ptr->data.ext.ptr)[4])
-        {
-        case 1:
-          mmc_command_name = "Stop";
-          break;
-        case 2:
-          mmc_command_name = "Play";
-          break;
-        case 3:
-          mmc_command_name = "Deferred Play";
-          break;
-        case 4:
-          mmc_command_name = "Fast Forward";
-          break;
-        case 5:
-          mmc_command_name = "Rewind";
-          break;
-        case 6:
-          mmc_command_name = "Record Strobe (Punch In)";
-          break;
-        case 7:
-          mmc_command_name = "Record Exit (Punch Out)";
-          break;
-        case 8:
-          mmc_command_name = "Record Pause";
-          break;
-        case 9:
-          mmc_command_name = "Pause";
-          break;
-        case 10:
-          mmc_command_name = "Eject";
-          break;
-        case 11:
-          mmc_command_name = "Chase";
-          break;
-        case 12:
-          mmc_command_name = "Command Error Reset";
-          break;
-        case 13:
-          mmc_command_name = "Reset";
-          break;
-        default:
-          goto generic_sysex;
-        }
-        g_string_sprintf(
-          msg_str_ptr,
-          "MMC %s, for ",
-          mmc_command_name);
-
-        if (((guint8 *)event_ptr->data.ext.ptr)[2] == 127)
-        {
-          g_string_append(
-            msg_str_ptr,
-            "all devices");
-        }
-        else
-        {
-          g_string_append_printf(
-            msg_str_ptr,
-            "device %u",
-            (unsigned int)(((guint8 *)event_ptr->data.ext.ptr)[2]));
-        }
-      }
-      /* The goto MMC message, as seen at http://www.borg.com/~jglatt/tech/mmc.htm*/
-      else if (event_ptr->data.ext.len == 13 &&
-               ((guint8 *)event_ptr->data.ext.ptr)[0] == 0xF0 &&
-               ((guint8 *)event_ptr->data.ext.ptr)[1] == 0x7F &&
-               ((guint8 *)event_ptr->data.ext.ptr)[3] == 0x06 &&
-               ((guint8 *)event_ptr->data.ext.ptr)[4] == 0x44 &&
-               ((guint8 *)event_ptr->data.ext.ptr)[5] == 0x06 &&
-               ((guint8 *)event_ptr->data.ext.ptr)[6] == 0x01 &&
-               ((guint8 *)event_ptr->data.ext.ptr)[12] == 0xF7)
-      {
-        g_string_sprintf(
-          msg_str_ptr,
-          "MMC goto %u:%u:%u/%u:%u",
-          (unsigned int)(((guint8 *)event_ptr->data.ext.ptr)[7] & 0x1F), /* fps encoding */
-          (unsigned int)(((guint8 *)event_ptr->data.ext.ptr)[8]),
-          (unsigned int)(((guint8 *)event_ptr->data.ext.ptr)[9]),
-          (unsigned int)(((guint8 *)event_ptr->data.ext.ptr)[10] & 0x1F), /* no fps > 32, but bit 5 looks
-                                                                             used for something */
-          (unsigned int)(((guint8 *)event_ptr->data.ext.ptr)[11]));
-
-        switch (((guint8 *)event_ptr->data.ext.ptr)[7] & 0x60)
-        {
-        case 0:
-          g_string_append(
-            msg_str_ptr,
-            ", 24 fps");
-          break;
-        case 1:
-          g_string_append(
-            msg_str_ptr,
-            ", 25 fps");
-          break;
-        case 2:
-          g_string_append(
-            msg_str_ptr,
-            ", 29.97 fps");
-          break;
-        case 3:
-          g_string_append(
-            msg_str_ptr,
-            ", 30 fps");
-          break;
-        }
-
-        if (((guint8 *)event_ptr->data.ext.ptr)[2] == 127)
-        {
-          g_string_append(
-            msg_str_ptr,
-            ", for all devices");
-        }
-        else
-        {
-          g_string_append_printf(
-            msg_str_ptr,
-            ", for device %u",
-            (unsigned int)(((guint8 *)event_ptr->data.ext.ptr)[2]));
-        }
-      }
-      else
-      {
-      generic_sysex:
-        g_string_sprintf(
-          msg_str_ptr,
-          "SYSEX with size %u:",
-          (unsigned int)event_ptr->data.ext.len);
-        for (i = 0 ; i < event_ptr->data.ext.len ; i++)
-        {
-          g_string_append_printf(
-            msg_str_ptr,
-            " %02X",
-            (unsigned int)(((guint8 *)event_ptr->data.ext.ptr)[i]));
-        }
-      }
+      decode_sysex(
+        (guint8 *)event_ptr->data.ext.ptr,
+        event_ptr->data.ext.len,
+        msg_str_ptr);
       break;
     case SND_SEQ_EVENT_BOUNCE:
       g_string_sprintf(msg_str_ptr, "error event");
@@ -810,9 +669,6 @@ alsa_midi_thread(void * context_ptr)
       COL_MESSAGE, msg_str_ptr->str,
       -1);
 
-    g_string_free(channel_str_ptr, TRUE);
-    g_string_free(msg_str_ptr, TRUE);
-
     gtk_tree_view_scroll_to_cell(
       GTK_TREE_VIEW(child_ptr),
       gtk_tree_model_get_path(
@@ -831,6 +687,10 @@ alsa_midi_thread(void * context_ptr)
 
     /* release GTK thread lock */
     gdk_threads_leave();
+
+    g_string_free(channel_str_ptr, TRUE);
+    g_string_free(msg_str_ptr, TRUE);
+    g_string_free(time_str_ptr, TRUE);
   }
 
   return NULL;
