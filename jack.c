@@ -181,6 +181,8 @@ jack_midi_decode(
     note_name = g_note_names[note % 12];
     octave = note / 12 - 1;
 
+    g_string_sprintf(channel_str_ptr, "%u", channel);
+
     g_string_sprintf(
       msg_str_ptr,
       "Note off, %s, octave %d, velocity %u",
