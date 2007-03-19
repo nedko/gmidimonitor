@@ -239,154 +239,137 @@ const char *
 gm_get_controller_name(
   unsigned int controller)
 {
-/*
-  switch (event_ptr->data.control.param)
+  switch (controller)
   {
-  case MIDI_CTL_MSB_BANK:
+  case 0x00:
     return "Bank selection";
-  case MIDI_CTL_MSB_MODWHEEL:
+  case 0x01:
     return "Modulation";
-  case MIDI_CTL_MSB_BREATH:
+  case 0x02:
     return "Breath";
-  case MIDI_CTL_MSB_FOOT:
+  case 0x04:
     return "Foot";
-  case MIDI_CTL_MSB_PORTAMENTO_TIME:
+  case 0x05:
     return "Portamento time";
-  case MIDI_CTL_MSB_DATA_ENTRY:
+  case 0x06:
     return "Data entry";
-  case MIDI_CTL_MSB_MAIN_VOLUME:
+  case 0x07:
     return "Main volume";
-  case MIDI_CTL_MSB_BALANCE:
+  case 0x08:
     return "Balance";
-  case MIDI_CTL_MSB_PAN:
+  case 0x0A:
     return "Panpot";
-  case MIDI_CTL_MSB_EXPRESSION:
+  case 0x0B:
     return "Expression";
-  case MIDI_CTL_MSB_EFFECT1:
+  case 0x0C:
     return "Effect1";
-  case MIDI_CTL_MSB_EFFECT2:
+  case 0x0D:
     return "Effect2";
-  case MIDI_CTL_MSB_GENERAL_PURPOSE1:
+  case 0x10:
     return "General purpose 1";
-  case MIDI_CTL_MSB_GENERAL_PURPOSE2:
+  case 0x11:
     return "General purpose 2";
-  case MIDI_CTL_MSB_GENERAL_PURPOSE3:
+  case 0x12:
     return "General purpose 3";
-  case MIDI_CTL_MSB_GENERAL_PURPOSE4:
+  case 0x13:
     return "General purpose 4";
-  case MIDI_CTL_LSB_BANK:
-    return "Bank selection";
-  case MIDI_CTL_LSB_MODWHEEL:
-    return "Modulation";
-  case MIDI_CTL_LSB_BREATH:
-    return "Breath";
-  case MIDI_CTL_LSB_FOOT:
-    return "Foot";
-  case MIDI_CTL_LSB_PORTAMENTO_TIME:
-    return "Portamento time";
-  case MIDI_CTL_LSB_DATA_ENTRY:
-    return "Data entry";
-  case MIDI_CTL_LSB_MAIN_VOLUME:
-    return "Main volume";
-  case MIDI_CTL_LSB_BALANCE:
-    return "Balance";
-  case MIDI_CTL_LSB_PAN:
-    return "Panpot";
-  case MIDI_CTL_LSB_EXPRESSION:
-    return "Expression";
-  case MIDI_CTL_LSB_EFFECT1:
-    return "Effect1";
-  case MIDI_CTL_LSB_EFFECT2:
-    return "Effect2";
-  case MIDI_CTL_LSB_GENERAL_PURPOSE1:
-    return "General purpose 1";
-  case MIDI_CTL_LSB_GENERAL_PURPOSE2:
-    return "General purpose 2";
-  case MIDI_CTL_LSB_GENERAL_PURPOSE3:
-    return "General purpose 3";
-  case MIDI_CTL_LSB_GENERAL_PURPOSE4:
-    return "General purpose 4";
-  case MIDI_CTL_SUSTAIN:
+  case 0x20:
+    return "Bank selection (LSB)";
+  case 0x21:
+    return "Modulation (LSB)";
+  case 0x22:
+    return "Breath (LSB)";
+  case 0x24:
+    return "Foot (LSB)";
+  case 0x25:
+    return "Portamento time (LSB)";
+  case 0x26:
+    return "Data entry (LSB)";
+  case 0x27:
+    return "Main volume (LSB)";
+  case 0x28:
+    return "Balance (LSB)";
+  case 0x2A:
+    return "Panpot (LSB)";
+  case 0x2B:
+    return "Expression (LSB)";
+  case 0x2C:
+    return "Effect1 (LSB)";
+  case 0x2D:
+    return "Effect2 (LSB)";
+  case 0x30:
+    return "General purpose 1 (LSB)";
+  case 0x31:
+    return "General purpose 2 (LSB)";
+  case 0x32:
+    return "General purpose 3 (LSB)";
+  case 0x33:
+    return "General purpose 4 (LSB)";
+  case 0x40:
     return "Sustain pedal";
-  case MIDI_CTL_PORTAMENTO:
+  case 0x41:
     return "Portamento";
-  case MIDI_CTL_SOSTENUTO:
+  case 0x42:
     return "Sostenuto";
-  case MIDI_CTL_SOFT_PEDAL:
+  case 0x43:
     return "Soft pedal";
-  case MIDI_CTL_LEGATO_FOOTSWITCH:
+  case 0x44:
     return "Legato foot switch";
-  case MIDI_CTL_HOLD2:
+  case 0x45:
     return "Hold2";
-  case MIDI_CTL_SC1_SOUND_VARIATION:
+  case 0x46:
     return "SC1 Sound Variation";
-  case MIDI_CTL_SC2_TIMBRE:
+  case 0x47:
     return "SC2 Timbre";
-  case MIDI_CTL_SC3_RELEASE_TIME:
+  case 0x48:
     return "SC3 Release Time";
-  case MIDI_CTL_SC4_ATTACK_TIME:
+  case 0x49:
     return "SC4 Attack Time";
-  case MIDI_CTL_SC5_BRIGHTNESS:
+  case 0x4A:
     return "SC5 Brightness";
-  case MIDI_CTL_SC6:
+  case 0x4B:
     return "SC6";
-  case MIDI_CTL_SC7:
+  case 0x4C:
     return "SC7";
-  case MIDI_CTL_SC8:
+  case 0x4D:
     return "SC8";
-  case MIDI_CTL_SC9:
+  case 0x4E:
     return "SC9";
-  case MIDI_CTL_SC10:
+  case 0x4F:
     return "SC10";
-  case MIDI_CTL_GENERAL_PURPOSE5:
+  case 0x50:
     return "General purpose 5";
-  case MIDI_CTL_GENERAL_PURPOSE6:
+  case 0x51:
     return "General purpose 6";
-  case MIDI_CTL_GENERAL_PURPOSE7:
+  case 0x52:
     return "General purpose 7";
-  case MIDI_CTL_GENERAL_PURPOSE8:
+  case 0x53:
     return "General purpose 8";
-  case MIDI_CTL_PORTAMENTO_CONTROL:
+  case 0x54:
     return "Portamento control";
-  case MIDI_CTL_E1_REVERB_DEPTH:
+  case 0x5B:
     return "E1 Reverb Depth";
-  case MIDI_CTL_E2_TREMOLO_DEPTH:
+  case 0x5C:
     return "E2 Tremolo Depth";
-  case MIDI_CTL_E3_CHORUS_DEPTH:
+  case 0x5D:
     return "E3 Chorus Depth";
-  case MIDI_CTL_E4_DETUNE_DEPTH:
+  case 0x5E:
     return "E4 Detune Depth";
-  case MIDI_CTL_E5_PHASER_DEPTH:
+  case 0x5F:
     return "E5 Phaser Depth";
-  case MIDI_CTL_DATA_INCREMENT:
+  case 0x60:
     return "Data Increment";
-  case MIDI_CTL_DATA_DECREMENT:
+  case 0x61:
     return "Data Decrement";
-  case MIDI_CTL_NONREG_PARM_NUM_LSB:
-    return "Non-registered parameter number";
-  case MIDI_CTL_NONREG_PARM_NUM_MSB:
-    return "Non-registered parameter number";
-  case MIDI_CTL_REGIST_PARM_NUM_LSB:
-    return "Registered parameter number";
-  case MIDI_CTL_REGIST_PARM_NUM_MSB:
-    return "Registered parameter number";
-  case MIDI_CTL_ALL_SOUNDS_OFF:
-    return "All sounds off";
-  case MIDI_CTL_RESET_CONTROLLERS:
-    return "Reset Controllers";
-  case MIDI_CTL_LOCAL_CONTROL_SWITCH:
-    return "Local control switch";
-  case MIDI_CTL_ALL_NOTES_OFF:
-    return "All notes off";
-  case MIDI_CTL_OMNI_OFF:
-    return "Omni off";
-  case MIDI_CTL_OMNI_ON:
-    return "Omni on";
-  case MIDI_CTL_MONO1:
-    return "Mono1";
-  case MIDI_CTL_MONO2:
-    return "Mono2";
+  case 0x62:
+    return "Non-registered parameter number (LSB)";
+  case 0x63:
+    return "Non-registered parameter number (MSB)";
+  case 0x64:
+    return "Registered parameter number (LSB)";
+  case 0x65:
+    return "Registered parameter number (MSB)";
   }
-*/
+
   return NULL;
 }
