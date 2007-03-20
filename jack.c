@@ -27,6 +27,8 @@
 #include <unistd.h>
 #include <assert.h>
 
+#include "config.h"
+
 #include "common.h"
 #include "jack.h"
 #include "memory_atomic.h"

@@ -64,7 +64,7 @@ then
   fi
 fi
 
-AM_CONDITIONAL(HAVE_JACK_MIDI, test "$have_jackmidi" = "yes")
+AM_CONDITIONAL(HAVE_JACK_MIDI, test "$have_jackmidi" = "yes" -o "$have_jackmidi" = "yes (old one)")
 
 if test "$have_alsamidi" != "yes" -a "$have_jackmidi" != "yes"
 then
