@@ -102,32 +102,29 @@ jack_process(jack_nframes_t nframes, void * context)
     memcpy(event_buffer->buffer, in_event.buffer, in_event.size);
     event_buffer->buffer_size = in_event.size;
 
-    ret = pthread_mutex_trylock(&g_jack_midi_mutex);
-    if (ret == 0)
-    {
-      /* We are lucky and we got the lock */
-      LOG_DEBUG("Lucky");
+    /* Add event buffer to g_jack_midi_events_pending_rt list */
+    list_add(&event_buffer->siblings, &g_jack_midi_events_pending_rt);
+  }
 
-      /* Move pending events in g_jack_midi_events_pending_rt to begining of g_jack_midi_events_pending */
-      list_splice_init(&g_jack_midi_events_pending_rt, &g_jack_midi_events_pending);
+  ret = pthread_mutex_trylock(&g_jack_midi_mutex);
+  if (ret == 0)
+  {
+    /* We are lucky and we got the lock */
+    LOG_DEBUG("Lucky");
 
-      /* Add event buffer to g_jack_midi_events_pending list */
-      list_add(&event_buffer->siblings, &g_jack_midi_events_pending);
+    /* Move pending events in g_jack_midi_events_pending_rt to begining of g_jack_midi_events_pending */
+    list_splice_init(&g_jack_midi_events_pending_rt, &g_jack_midi_events_pending);
 
-      /* wakeup jack_midi_thread */
-      //ret = pthread_cond_broadcast(&g_jack_midi_cond);
-      //LOG_DEBUG("pthread_cond_broadcast() result is %d", ret);
-      ret = pthread_mutex_unlock(&g_jack_midi_mutex);
-      //LOG_DEBUG("pthread_mutex_unlock() result is %d", ret);
-    }
-    else
-    {
-      /* We are not lucky, jack_midi_thread has locked the mutex */
-      LOG_DEBUG("Not lucky (%d)", ret);
-
-      /* Add event buffer to g_jack_midi_events_pending_rt list */
-      list_add(&event_buffer->siblings, &g_jack_midi_events_pending_rt);
-    }
+    /* wakeup jack_midi_thread */
+    //ret = pthread_cond_broadcast(&g_jack_midi_cond);
+    //LOG_DEBUG("pthread_cond_broadcast() result is %d", ret);
+    ret = pthread_mutex_unlock(&g_jack_midi_mutex);
+    //LOG_DEBUG("pthread_mutex_unlock() result is %d", ret);
+  }
+  else
+  {
+    /* We are not lucky, jack_midi_thread has locked the mutex */
+    LOG_DEBUG("Not lucky (%d)", ret);
   }
 
   return 0;
@@ -535,6 +532,7 @@ jack_destroy_pending_events()
 
   while (!list_empty(&g_jack_midi_events_pending))
   {
+    LOG_DEBUG("Destroying pending event");
     node_ptr = g_jack_midi_events_pending.next;
 
     list_del(node_ptr);
@@ -546,6 +544,7 @@ jack_destroy_pending_events()
 
   while (!list_empty(&g_jack_midi_events_pending_rt))
   {
+    LOG_DEBUG("Destroying realtime pending event");
     node_ptr = g_jack_midi_events_pending_rt.next;
 
     list_del(node_ptr);
