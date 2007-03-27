@@ -372,6 +372,16 @@ jack_midi_decode(
   if (buffer_size > 0 && buffer[0] == 0xF0)
   {
     decode_sysex(buffer, buffer_size, msg_str_ptr);
+    return TRUE;
+  }
+
+  if (buffer_size == 1 && buffer[0] == 0xFF)
+  {
+    g_string_sprintf(
+      msg_str_ptr,
+      "Reset");
+   
+    return TRUE;
   }
 
 unknown_event:
