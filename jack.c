@@ -39,9 +39,7 @@
 #include "gm.h"
 #include "sysex.h"
 
-#ifdef HAVE_OLD_JACK_MIDI
-#define jack_midi_get_event_count(port_buf, nframes) jack_midi_port_get_info(port_buf, nframes)->event_count
-#endif
+#include "jack_compat.c"
 
 jack_client_t * g_jack_client;
 jack_port_t * g_jack_input_port;
@@ -81,12 +79,12 @@ jack_process(jack_nframes_t nframes, void * context)
   struct jack_midi_event_buffer * event_buffer;
 
   port_buf = jack_port_get_buffer(g_jack_input_port, nframes);
-  event_count = jack_midi_get_event_count(port_buf, nframes);
+  event_count = jack_midi_get_event_count(port_buf);
   jack_transport_query(g_jack_client, &pos);
   
   for (i = 0 ; i < event_count; i++)
   {
-    jack_midi_event_get(&in_event, port_buf, i, nframes);
+    jack_midi_event_get(&in_event, port_buf, i);
 
     LOG_DEBUG("midi event with size %u received. (jack_process)", (unsigned int)in_event.size);
 

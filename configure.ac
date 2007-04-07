@@ -69,6 +69,12 @@ AM_CONDITIONAL(HAVE_JACK_MIDI, test "$have_jackmidi" = "yes" -o "$have_jackmidi"
 if test "$have_alsamidi" != "yes" -a "$have_jackmidi" != "yes"
 then
   AC_MSG_ERROR([Neighter ALSA nor JACK MIDI is available.])
+else
+  AC_JACK_MIDI_NFRAMES_CHECK()
+  if test "$jackmidi_nframes" == "yes"
+  then
+    AC_DEFINE([JACK_MIDI_NEEDS_NFRAMES], 1, [Defined if we JACK MIDI functions need nframes parameter.])
+  fi
 fi
 
 # LASH
