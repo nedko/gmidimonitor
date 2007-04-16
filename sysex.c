@@ -104,7 +104,7 @@ decode_sysex(
         (unsigned int)(buffer[2]));
     }
   }
-  /* The goto MMC message, as seen at http://www.borg.com/~jglatt/tech/mmc.htm*/
+  /* The goto MMC message, as seen at http://www.borg.com/~jglatt/tech/mmc.htm */
   else if (buffer_size == 13 &&
            buffer[0] == 0xF0 &&
            buffer[1] == 0x7F &&
@@ -120,8 +120,7 @@ decode_sysex(
       (unsigned int)(buffer[7] & 0x1F), /* fps encoding */
       (unsigned int)(buffer[8]),
       (unsigned int)(buffer[9]),
-      (unsigned int)(buffer[10] & 0x1F), /* no fps > 32, but bit 5 looks
-                                                                         used for something */
+      (unsigned int)(buffer[10] & 0x1F), /* no fps > 32, but bit 5 looks used for something */
       (unsigned int)(buffer[11]));
 
     switch (buffer[7] & 0x60)
