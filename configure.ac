@@ -66,7 +66,7 @@ fi
 
 AM_CONDITIONAL(HAVE_JACK_MIDI, test "$have_jackmidi" = "yes" -o "$have_jackmidi" = "yes (old one)")
 
-if test "$have_alsamidi" != "yes" -a "$have_jackmidi" != "yes"
+if test "$have_alsamidi" != "yes" -a "$have_jackmidi" != "yes" -a "$have_jackmidi" != "yes (old one)"
 then
   AC_MSG_ERROR([Neighter ALSA nor JACK MIDI is available.])
 else
