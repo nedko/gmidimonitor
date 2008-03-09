@@ -153,6 +153,12 @@ jack_midi_decode(
     return FALSE;               /* disable */
   }
 
+  if (buffer_size == 1 && buffer[0] == 0xF8)
+  {
+    g_string_sprintf(msg_str_ptr, "Timing Clock");
+    return FALSE;               /* disable */
+  }
+
   if (buffer_size == 3 && (buffer[0] >> 4) == 0x08)
   {
     channel = (buffer[0] & 0x0F) + 1; /* 1 .. 16 */
