@@ -20,9 +20,9 @@
 #
 
 AC_PREREQ(2.61)
-AC_INIT(gmidimonitor, 3.2)
+AC_INIT(gmidimonitor, 3.3)
 AC_CONFIG_AUX_DIR(config)
-AM_INIT_AUTOMAKE(gmidimonitor, 3.2)
+AM_INIT_AUTOMAKE(gmidimonitor, 3.3)
 AC_CONFIG_HEADER([config.h])
 
 #AS_AC_EXPAND(DATADIR, $datadir)
