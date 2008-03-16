@@ -1,0 +1,31 @@
+= Version 3.3 on 2008-03-09 =
+ * Fix building against new JACK MIDI API variants
+ * Timing clock events are now ignored
+
+= Version 3.2 on 2007-03-27 =
+ * Fix bug causing stalled midi events after burst followed by silence
+ * Decode jack midi reset message (by Edward Tomasz Napierala)
+ * Add some instructions about using GMIDImonitor.
+
+= Version 3.1 on 2007-03-20 =
+ * Fix build against old jackmidi (0.102.20)
+ * Fix bug (not showing channel for note off messages)
+
+= Version 3.0 on 2007-03-19 =
+ * Switch to autotools.
+ * LASH is now optional.
+ * JACK MIDI support (both old 0.102.20 and new one 0.103.0).
+ * LASH, JACK MIDI and ALSA MIDI can be force disabled by passing option to configure script.
+ * Shortcut for clearing list (ctrl-x).
+
+= Version 2.1 on 2006-01-02 =
+ * dumping of sysex data
+ * somewhat limited MMC decoding.
+
+= Version 2.0 on 2005-12-23 =
+
+ * bugfixes
+ * LASH support
+
+= Version 1.0 on 2005-12-17 =
+ * Initial release
