@@ -1,4 +1,4 @@
-# Copyright (C) 2007 Nedko Arnaudov <nedko@arnaudov.name>
+# Copyright (C) 2007,2008 Nedko Arnaudov <nedko@arnaudov.name>
 # This file is distributed under the same terms as the Autoconf macro files.
 
 AC_DEFUN([AC_JACK_MIDI_NFRAMES_CHECK], [
