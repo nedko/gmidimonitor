@@ -26,7 +26,7 @@ gmidimonitor_alsamidi_sources =
 endif
 
 if HAVE_JACK_MIDI
-gmidimonitor_jackmidi_sources = jack.c jack.h
+gmidimonitor_jackmidi_sources = jack.c jack.h jack_compat.h
 else
 gmidimonitor_jackmidi_sources =
 endif

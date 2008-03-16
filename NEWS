@@ -1,3 +1,6 @@
+= Version 3.4 =
+ * Fix tarball to include file JACK MIDI compatibility file
+
 = Version 3.3 on 2008-03-09 =
  * Fix building against new JACK MIDI API variants
  * Timing clock events are now ignored

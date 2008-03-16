@@ -39,7 +39,7 @@
 #include "gm.h"
 #include "sysex.h"
 
-#include "jack_compat.c"
+#include "jack_compat.h"
 
 jack_client_t * g_jack_client;
 jack_port_t * g_jack_input_port;
