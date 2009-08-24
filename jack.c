@@ -351,7 +351,7 @@ jack_midi_decode(
     return TRUE;
   }
 
-  if (buffer_size == 3 && (buffer[0] >> 4) == 0x0E && buffer[1] <= 127 && buffer[1] <= 127)
+  if (buffer_size == 3 && (buffer[0] >> 4) == 0x0E && buffer[1] <= 127 && buffer[2] <= 127)
   {
     channel = (buffer[0] & 0x0F) + 1; /* 1 .. 16 */
     assert(channel >= 1 && channel <= 16);
