@@ -30,6 +30,9 @@
 #include "gm.h"
 #include "sysex.h"
 
+/* TODO: this must be detected at configure stage */
+#define OLD_ALSA 0
+
 snd_seq_t * g_seq_ptr;
 pthread_t g_alsa_midi_tid;      /* alsa_midi_thread id */
 
@@ -504,6 +507,7 @@ alsa_midi_thread(void * context_ptr)
     case SND_SEQ_EVENT_PORT_UNSUBSCRIBED:
       g_string_sprintf(msg_str_ptr, "Port disconnected");
       break;
+#if OLD_ALSA
     case SND_SEQ_EVENT_SAMPLE:
       g_string_sprintf(msg_str_ptr, "Sample select");
       break;
@@ -531,6 +535,7 @@ alsa_midi_thread(void * context_ptr)
     case SND_SEQ_EVENT_SAMPLE_PRIVATE1:
       g_string_sprintf(msg_str_ptr, "private (hardware dependent) event");
       break;
+#endif
     case SND_SEQ_EVENT_USR0:
       g_string_sprintf(msg_str_ptr, "user-defined event");
       break;
@@ -561,6 +566,7 @@ alsa_midi_thread(void * context_ptr)
     case SND_SEQ_EVENT_USR9:
       g_string_sprintf(msg_str_ptr, "user-defined event");
       break;
+#if OLD_ALSA
     case SND_SEQ_EVENT_INSTR_BEGIN:
       g_string_sprintf(msg_str_ptr, "begin of instrument management");
       break;
@@ -618,6 +624,7 @@ alsa_midi_thread(void * context_ptr)
     case SND_SEQ_EVENT_INSTR_CHANGE:
       g_string_sprintf(msg_str_ptr, "instrument change");
       break;
+#endif
     case SND_SEQ_EVENT_SYSEX:
       decode_sysex(
         (guint8 *)event_ptr->data.ext.ptr,
