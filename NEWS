@@ -1,3 +1,12 @@
+= Version 3.5 on 2011-05-15 =
+ * Switch to waf
+ * Drop support for ancient JACK lib
+ * Add support for modern ALSA lib
+ * Use fixed client name
+ * Don't try to use lash when started through ladish
+ * jack and alsa selection at runtime
+ * clean shutdown on SIGINT and SIGTERM (no JACK xruns anymore)
+
 = Version 3.4 on 2008-03-17 =
  * Fix tarball to include file JACK MIDI compatibility file
 
