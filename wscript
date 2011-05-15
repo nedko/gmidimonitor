@@ -6,7 +6,7 @@ import os, Logs, Options
 top = '.'
 out = 'build'
 APPNAME='gmidimonitor'
-VERSION='3.5-dev'
+VERSION='3.5'
 
 optfeatures = {
     'jack': {'description': 'JACK MIDI support',
