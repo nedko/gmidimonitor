@@ -245,22 +245,24 @@ main(int argc, char *argv[])
   path_init(argv[0]);
 
 #ifdef HAVE_LASH_1_0
-  g_lashc = lash_init(
-    lash_extract_args(&argc, &argv),
-    "gmidimonitor",
-    0,
-    LASH_PROTOCOL_VERSION); 
-
-  if (g_lashc == NULL)
+  if (getenv("LADISH_APPNAME") != NULL)
   {
-    g_warning("Failed to connect to LASH. Session management will not occur.\n");
-  }
-  else
-  {
-    lash_event_ptr = lash_event_new_with_type(LASH_Client_Name);
-    lash_event_set_string(lash_event_ptr, "GMIDImonitor");
-    lash_send_event(g_lashc, lash_event_ptr);
-    g_timeout_add(250, process_lash_events, NULL);
+    g_lashc = lash_init(
+      lash_extract_args(&argc, &argv),
+      "gmidimonitor",
+      0,
+      LASH_PROTOCOL_VERSION); 
+    if (g_lashc == NULL)
+    {
+      g_warning("Failed to connect to LASH. Session management will not occur.\n");
+    }
+    else
+    {
+      lash_event_ptr = lash_event_new_with_type(LASH_Client_Name);
+      lash_event_set_string(lash_event_ptr, "GMIDImonitor");
+      lash_send_event(g_lashc, lash_event_ptr);
+      g_timeout_add(250, process_lash_events, NULL);
+    }
   }
 #endif
 
