@@ -230,6 +230,14 @@ process_lash_events(gpointer data)
 
 #endif  /* #ifdef HAVE_LASH_1_0 */
 
+static
+void
+sigint_handler(
+  int i)
+{
+  gtk_main_quit();
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -363,6 +371,9 @@ main(int argc, char *argv[])
 
   if (io_enabled)
   {
+    signal(SIGINT, &sigint_handler);
+    signal(SIGTERM, &sigint_handler);
+
     /* main loop */
     gtk_main();
   }
