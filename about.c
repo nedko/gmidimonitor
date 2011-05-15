@@ -5,7 +5,7 @@
  *
  *   This file is part of gmidimonitor
  *
- *   Copyright (C) 2005,2006,2007,2008 Nedko Arnaudov <nedko@arnaudov.name>
+ *   Copyright (C) 2005,2006,2007,2008,2011 Nedko Arnaudov <nedko@arnaudov.name>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -391,7 +391,7 @@ on_about_clicked(
     GTK_TYPE_ABOUT_DIALOG,
     "name", "GMIDImonitor",
     "version", PACKAGE_VERSION,
-    "copyright", "Copyright \xc2\xa9 2005,2006,2007,2008 Nedko Arnaudov",
+    "copyright", "Copyright \xc2\xa9 2005,2006,2007,2008,2011 Nedko Arnaudov",
     "authors", authors,
     "comments", "GTK MIDI monitor.",
     "website", "https://gmidimonitor.bountysource.com/",
