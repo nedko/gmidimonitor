@@ -22,6 +22,8 @@
  *
  *****************************************************************************/
 
+#include "config.h"
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -62,9 +64,9 @@ path_get_data_filename(const gchar * filename)
 
   path_check_initialization();
 
-  /* check if it can be found where executable resides */
-  /* This allows executing not installed binary to read right data files */
-  full_path = g_strdup_printf("%s/%s", pszPathToExecutable, filename);
+  /* check if it can be found in the source dir */
+  /* This allows a not installed binary to read right data files */
+  full_path = g_strdup_printf("%s/../%s", pszPathToExecutable, filename);
   if (stat(full_path, &st) == 0)
   {
     return full_path;

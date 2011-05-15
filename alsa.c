@@ -722,7 +722,7 @@ alsa_init(const char * name)
 
   snd_seq_set_client_name(g_seq_ptr, name);
 
-#ifdef HAVE_LASH
+#ifdef HAVE_LASH_1_0
   lash_alsa_client_id(g_lashc, snd_seq_client_id(g_seq_ptr));
 #endif
 

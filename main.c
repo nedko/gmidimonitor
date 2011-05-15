@@ -29,7 +29,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#ifdef HAVE_LASH
+#ifdef HAVE_LASH_1_0
 #include <lash/lash.h>
 #endif
 
@@ -46,7 +46,7 @@ gboolean g_midi_ignore = FALSE;
 
 int g_row_count;
 
-#ifdef HAVE_LASH
+#ifdef HAVE_LASH_1_0
 lash_client_t * g_lashc;
 #endif
 
@@ -159,7 +159,7 @@ void on_clear_clicked
   g_row_count = 0;
 }
 
-#ifdef HAVE_LASH
+#ifdef HAVE_LASH_1_0
 
 void
 process_lash_event(lash_event_t * event_ptr)
@@ -225,12 +225,12 @@ process_lash_events(gpointer data)
   return TRUE;
 }
 
-#endif  /* #ifdef HAVE_LASH */
+#endif  /* #ifdef HAVE_LASH_1_0 */
 
 int
 main(int argc, char *argv[])
 {
-#ifdef HAVE_LASH
+#ifdef HAVE_LASH_1_0
   lash_event_t * lash_event_ptr;
 #endif
   GString * client_name_str_ptr;
@@ -244,7 +244,7 @@ main(int argc, char *argv[])
 
   path_init(argv[0]);
 
-#ifdef HAVE_LASH
+#ifdef HAVE_LASH_1_0
   g_lashc = lash_init(
     lash_extract_args(&argc, &argv),
     "gmidimonitor",
@@ -272,14 +272,14 @@ main(int argc, char *argv[])
 
   g_row_count = 0;
 
-#ifdef HAVE_JACK_MIDI
+#ifdef HAVE_JACK
   if (!jack_init(client_name_str_ptr->str))
   {
     goto fail;
   }
 #endif
 
-#ifdef HAVE_ALSA_MIDI
+#ifdef HAVE_ALSA
   if (!alsa_init(client_name_str_ptr->str))
   {
     goto fail_uninit_jack;
@@ -289,13 +289,13 @@ main(int argc, char *argv[])
   /* main loop */
   gtk_main();
 
-#ifdef HAVE_ALSA_MIDI
+#ifdef HAVE_ALSA
   alsa_uninit();
 
 fail_uninit_jack:
 #endif
 
-#ifdef HAVE_JACK_MIDI
+#ifdef HAVE_JACK
   jack_uninit();
 
 fail:
