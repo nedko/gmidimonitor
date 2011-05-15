@@ -602,7 +602,7 @@ jack_init(const char * name)
     goto fail_uninit_cond;
   }
 
-  g_jack_client = jack_client_new(name);
+  g_jack_client = jack_client_open(name, JackNoStartServer, NULL);
   if (g_jack_client == NULL)
   {
     LOG_ERROR("Cannot create JACK client.");
