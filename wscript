@@ -32,6 +32,13 @@ def display_feature(ctx, opt):
 
     display_value(ctx, optfeatures[opt]['description'], optfeatures[opt]['status'], color)
 
+def add_cflag(ctx, flag):
+    ctx.env.append_unique('CXXFLAGS', flag)
+    ctx.env.append_unique('CFLAGS', flag)
+
+def add_linkflag(ctx, flag):
+    ctx.env.append_unique('LINKFLAGS', flag)
+
 def add_opt_feature(opt, feature, help):
     help = "Whether to build " + help + ", possible values: 'yes', 'no' and 'auto'. Default is 'auto'."
     opt.add_option('--' + feature, type='choice', choices=['auto', 'yes', 'no'], default='auto', help=help)
@@ -102,6 +109,12 @@ def configure(ctx):
         ctx.fatal("Neither JACK nor ALSA is available")
 
     ctx.env['DATA_DIR'] = os.path.normpath(os.path.join(ctx.env['PREFIX'], 'share', APPNAME))
+
+    add_cflag(ctx, '-Wall')
+    #add_cflag(ctx, '-Wuninitialized')
+    #add_cflag(ctx, '-O3')
+    #add_cflag(ctx, '-g')
+    #add_linkflag(ctx, '-g')
 
     display_line()
     display_line('==================')
