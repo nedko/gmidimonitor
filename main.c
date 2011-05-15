@@ -24,6 +24,9 @@
 
 #include "config.h"
 
+#include <string.h>
+#include <glib.h>
+#include <glib/gprintf.h>
 #include <gtk/gtk.h>
 #include <signal.h>
 #include <sys/types.h>
@@ -235,6 +238,58 @@ main(int argc, char *argv[])
 #endif
   GString * client_name_str_ptr;
 
+  int i;
+  gboolean want_any = TRUE;
+#ifdef HAVE_JACK
+  gboolean want_jack = FALSE;
+  gboolean jack_enabled = FALSE;
+#endif
+#ifdef HAVE_ALSA
+  gboolean want_alsa = FALSE;
+  gboolean alsa_enabled = FALSE;
+#endif
+  gboolean io_enabled = FALSE;
+  int ret = 0;
+
+  for (i = 1; i < argc; i++)
+  {
+#ifdef HAVE_JACK
+    if (strcmp(argv[i], "--jack") == 0)
+    {
+      want_jack = TRUE;
+      want_any = FALSE;
+      continue;
+    }
+#endif
+#ifdef HAVE_ALSA
+    if (strcmp(argv[i], "--alsa") == 0)
+    {
+      want_alsa = TRUE;
+      want_any = FALSE;
+      continue;
+    }
+#endif
+    if (strcmp(argv[i], "--help") != 0)
+    {
+      fprintf(stderr, "Unrecognized parameter \"%s\"\n", argv[i]);
+      ret = 1;
+    }
+
+    fprintf(
+      ret == 0 ? stdout : stderr,
+      "Usage: %s"
+#ifdef HAVE_JACK
+      " [--jack]"
+#endif
+#ifdef HAVE_ALSA
+      " [--alsa]"
+#endif
+      "\n",
+      argv[0]);
+
+    exit(ret);
+  }
+
   /* init threads */
   g_thread_init(NULL);
   gdk_threads_init();
@@ -275,37 +330,62 @@ main(int argc, char *argv[])
   g_row_count = 0;
 
 #ifdef HAVE_JACK
-  if (!jack_init(client_name_str_ptr->str))
+  if (want_jack || want_any)
   {
-    goto fail;
+    jack_enabled = jack_init(client_name_str_ptr->str);
+    if (jack_enabled)
+    {
+      g_printf("JACK MIDI enabled\n");
+      io_enabled = TRUE;
+    }
+    else if (want_jack)
+    {
+      goto failed_jack;
+    }
   }
 #endif
 
 #ifdef HAVE_ALSA
-  if (!alsa_init(client_name_str_ptr->str))
+  if (want_alsa || (want_any && !io_enabled))
   {
-    goto fail_uninit_jack;
+    alsa_enabled = alsa_init(client_name_str_ptr->str);
+    if (alsa_enabled)
+    {
+      g_printf("ALSA MIDI enabled\n");
+      io_enabled = TRUE;
+    }
+    else if (want_alsa)
+    {
+      goto failed_alsa;
+    }
   }
 #endif
 
-  /* main loop */
-  gtk_main();
+  if (io_enabled)
+  {
+    /* main loop */
+    gtk_main();
+  }
 
 #ifdef HAVE_ALSA
-  alsa_uninit();
-
-fail_uninit_jack:
+  if (alsa_enabled)
+  {
+    alsa_uninit();
+  }
+failed_alsa:
 #endif
 
 #ifdef HAVE_JACK
-  jack_uninit();
-
-fail:
+  if (jack_enabled)
+  {
+    jack_uninit();
+  }
+failed_jack:
 #endif
 
   gdk_threads_leave();
 
   path_init(argv[0]);
 
-  return 0;
+  return ret;
 }
