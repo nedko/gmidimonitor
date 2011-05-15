@@ -394,7 +394,7 @@ on_about_clicked(
     "copyright", "Copyright \xc2\xa9 2005,2006,2007,2008,2011 Nedko Arnaudov",
     "authors", authors,
     "comments", "GTK MIDI monitor.",
-    "website", "https://gmidimonitor.bountysource.com/",
+    "website", "http://home.gna.org/gmidimonitor/",
     "license", license,
     NULL);
 
