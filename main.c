@@ -42,7 +42,7 @@
 #include "jack.h"
 #include "alsa.h"
 
-GtkBuilder * builder;
+GtkBuilder * g_builder;
 GtkWidget * g_main_window_ptr;
 
 gboolean g_midi_ignore = FALSE;
@@ -88,8 +88,8 @@ create_mainwindow()
 
   /* load the interface builder */
   error = NULL;
-  builder = gtk_builder_new();
-  if (!gtk_builder_add_from_file (builder, FILE, &error))
+  g_builder = gtk_builder_new();
+  if (!gtk_builder_add_from_file (g_builder, FILE, &error))
   {
     g_warning ("Couldn't load builder file: %s", error->message);
     g_error_free (error);
@@ -97,10 +97,10 @@ create_mainwindow()
   g_free(ui_filename);
   
   /* Retrieve the main window and connect the signals in the interface */
-  g_main_window_ptr = GTK_WIDGET (gtk_builder_get_object (builder, "main_window"));
-  gtk_builder_connect_signals(builder, NULL);
+  g_main_window_ptr = GTK_WIDGET (gtk_builder_get_object (g_builder, "main_window"));
+  gtk_builder_connect_signals(g_builder, NULL);
 
-  child_ptr = GTK_WIDGET (gtk_builder_get_object (builder, "list"));
+  child_ptr = GTK_WIDGET (gtk_builder_get_object (g_builder, "list"));
 
   text_renderer_ptr = gtk_cell_renderer_text_new();
 
@@ -158,7 +158,7 @@ void on_button_stop_toggled(
 {
   GtkWidget * child_ptr;
 
-  child_ptr = GTK_WIDGET (gtk_builder_get_object (builder, "button_stop"));
+  child_ptr = GTK_WIDGET (gtk_builder_get_object (g_builder, "button_stop"));
 
   if (gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(child_ptr)))
   {
@@ -178,7 +178,7 @@ void on_clear_clicked
       gtk_tree_view_get_model(
         GTK_TREE_VIEW(
           gtk_builder_get_object(
-            builder,
+            g_builder,
             "list")))));
   g_row_count = 0;
 }
