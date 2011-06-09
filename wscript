@@ -86,11 +86,6 @@ def configure(ctx):
         args = '--cflags --libs')
 
     ctx.check_cfg(
-        package = 'libglade-2.0',
-        errmsg = "not installed, see http://www.gtk.org/",
-        args = '--cflags --libs')
-
-    ctx.check_cfg(
         package = 'gthread-2.0',
         errmsg = "not installed, see http://www.gtk.org/",
         args = '--cflags --libs')
@@ -135,13 +130,12 @@ def build(ctx):
         "main.c",
         "about.c",
         "path.c",
-        "glade.c",
         "gm.c",
         "log.c",
         "memory_atomic.c",
         "sysex.c",
         ]
-    uselib = ['GTK+-2.0', 'GTHREAD-2.0', 'LIBGLADE-2.0', 'GMODULE-2.0']
+    uselib = ['GTK+-2.0', 'GTHREAD-2.0', 'GMODULE-2.0']
 
     if ctx.env['BUILD_JACK']:
         source.append("jack.c")
@@ -162,4 +156,4 @@ def build(ctx):
         uselib = uselib,
         )
 
-    ctx.install_files('${DATA_DIR}', 'gmidimonitor.glade')
+    ctx.install_files('${DATA_DIR}', 'gmidimonitor.ui')

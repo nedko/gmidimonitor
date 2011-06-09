@@ -38,11 +38,11 @@
 
 #include "common.h"
 #include "path.h"
-#include "glade.h"
 #include "gm.h"
 #include "jack.h"
 #include "alsa.h"
 
+GtkBuilder * builder;
 GtkWidget * g_main_window_ptr;
 
 gboolean g_midi_ignore = FALSE;
@@ -76,10 +76,31 @@ create_mainwindow()
   GtkListStore * list_store_ptr;
   GtkTreeViewColumn * column_ptr;
   GtkCellRenderer * text_renderer_ptr;
+  GError * error;
+  gchar * ui_filename;
 
-  g_main_window_ptr = construct_glade_widget("main_window");
+  ui_filename = path_get_data_filename("gmidimonitor.ui");
+  if (ui_filename == NULL)
+  {
+    g_warning("Cannot find UI description file.");
+    exit(1);
+  }
 
-  child_ptr = get_glade_widget_child(g_main_window_ptr, "list");
+  /* load the interface builder */
+  error = NULL;
+  builder = gtk_builder_new();
+  if (!gtk_builder_add_from_file (builder, FILE, &error))
+  {
+    g_warning ("Couldn't load builder file: %s", error->message);
+    g_error_free (error);
+  }
+  g_free(ui_filename);
+  
+  /* Retrieve the main window and connect the signals in the interface */
+  g_main_window_ptr = GTK_WIDGET (gtk_builder_get_object (builder, "main_window"));
+  gtk_builder_connect_signals(builder, NULL);
+
+  child_ptr = GTK_WIDGET (gtk_builder_get_object (builder, "list"));
 
   text_renderer_ptr = gtk_cell_renderer_text_new();
 
@@ -137,7 +158,7 @@ void on_button_stop_toggled(
 {
   GtkWidget * child_ptr;
 
-  child_ptr = get_glade_widget_child(widget_ptr, "button_stop");
+  child_ptr = GTK_WIDGET (gtk_builder_get_object (builder, "button_stop"));
 
   if (gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(child_ptr)))
   {
@@ -156,8 +177,8 @@ void on_clear_clicked
     GTK_LIST_STORE(
       gtk_tree_view_get_model(
         GTK_TREE_VIEW(
-          get_glade_widget_child(
-            g_main_window_ptr,
+          gtk_builder_get_object(
+            builder,
             "list")))));
   g_row_count = 0;
 }
