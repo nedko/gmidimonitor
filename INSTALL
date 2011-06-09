@@ -18,12 +18,9 @@ You need:
      2.1 GTK+ >= 2.6 (required)
          Known to work with GTK+ 2.8.6
          You can get it from http://www.gtk.org/
-     2.2 libglade >= 2.0 (required)
-         Known to work with libglade 2.5.1
-         You can get it from http://www.jamesh.id.au/software/libglade/
-     2.3 JACK with MIDI support, i.e. >= 0.102.20 (optional)
+     2.2 JACK with MIDI support, i.e. >= 0.102.20 (optional)
          You can get it from http://jackaudio.org/
-     2.4 ALSA library (optional)
+     2.3 ALSA library (optional)
          Known to work with alsa-lib 1.0.9
          You can get it from http://www.alsa-project.org/
      2.4 LASH (optional)
