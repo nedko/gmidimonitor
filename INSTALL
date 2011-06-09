@@ -15,8 +15,8 @@ You need:
          You can get it from http://pkgconfig.freedesktop.org/wiki/
 
   2. Libraries
-     2.1 GTK+ >= 2.6 (required)
-         Known to work with GTK+ 2.8.6
+     2.1 GTK+ >= 2.12 (required)
+         Known to work with GTK+ 2.24.4
          You can get it from http://www.gtk.org/
      2.2 JACK with MIDI support, i.e. >= 0.102.20 (optional)
          You can get it from http://jackaudio.org/
