@@ -26,12 +26,13 @@
 
 #include "common.h"
 #include "alsa.h"
-#include "glade.h"
 #include "gm.h"
 #include "sysex.h"
 
 /* TODO: this must be detected at configure stage */
 #define OLD_ALSA 0
+
+extern GtkBuilder * g_builder;
 
 snd_seq_t * g_seq_ptr;
 pthread_t g_alsa_midi_tid;      /* alsa_midi_thread id */
@@ -52,7 +53,7 @@ alsa_midi_thread(void * context_ptr)
   const char * drum_name;
   const char * cc_name;
 
-  child_ptr = get_glade_widget_child(g_main_window_ptr, "list");
+  child_ptr = GTK_WIDGET (gtk_builder_get_object (g_builder, "list"));
 
   list_store_ptr = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(child_ptr)));
 

@@ -35,11 +35,12 @@
 //#define LOG_LEVEL LOG_LEVEL_DEBUG
 #include "log.h"
 #include "list.h"
-#include "glade.h"
 #include "gm.h"
 #include "sysex.h"
 
 #include "jack_compat.h"
+
+extern GtkBuilder * g_builder;
 
 jack_client_t * g_jack_client;
 jack_port_t * g_jack_input_port;
@@ -417,7 +418,7 @@ jack_midi_thread(void * context_ptr)
 
   LOG_DEBUG("jack_midi_thread started");
 
-  child_ptr = get_glade_widget_child(g_main_window_ptr, "list");
+  child_ptr = GTK_WIDGET (gtk_builder_get_object (g_builder, "list"));
 
   list_store_ptr = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(child_ptr)));
 
