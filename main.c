@@ -42,7 +42,7 @@
 #include "jack.h"
 #include "alsa.h"
 
-GtkBuilder * g_builder;
+GtkBuilder * g_builder = NULL;
 GtkWidget * g_main_window_ptr;
 
 gboolean g_midi_ignore = FALSE;
