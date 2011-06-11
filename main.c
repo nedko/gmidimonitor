@@ -89,7 +89,7 @@ create_mainwindow()
   /* load the interface builder */
   error = NULL;
   g_builder = gtk_builder_new();
-  if (!gtk_builder_add_from_file (g_builder, FILE, &error))
+  if (!gtk_builder_add_from_file (g_builder, ui_filename, &error))
   {
     g_warning ("Couldn't load builder file: %s", error->message);
     g_error_free (error);
