@@ -29,6 +29,7 @@
 
 #include <gtk/gtk.h>
 
+#include "common.h"
 #include "path.h"
 #include "config.h"
 
@@ -400,12 +401,9 @@ on_about_clicked(
 
   g_signal_connect(about, "response", G_CALLBACK(gtk_widget_destroy), NULL);
 
-  if (window != NULL)
-  {
-    gtk_window_set_transient_for(
-      GTK_WINDOW(about),
-      GTK_WINDOW(window));
-  }
+  gtk_window_set_transient_for(
+    GTK_WINDOW(about),
+    GTK_WINDOW(g_main_window_ptr));
 
   gtk_widget_show(about);
 }
