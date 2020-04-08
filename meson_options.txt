@@ -1,0 +1,3 @@
+option('jack', type: 'feature', value: 'auto', description: 'JACK MIDI support')
+option('alsa', type: 'feature', value: 'auto', description: 'ALSA MIDI support')
+option('lash', type: 'feature', value: 'auto', description: 'LASH support')
