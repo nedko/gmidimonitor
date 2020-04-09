@@ -36,7 +36,7 @@ configure_file(input : 'config.h.in',
                output : 'config.h',
                configuration : conf_data)
 
-# sources
+# common sources
 src = [
     'main.c',
     'about.c',
@@ -47,12 +47,22 @@ src = [
     'sysex.c'
 ]
 
+# default cflags
+gmidimonitor_flags = [ '-Wall' ]
+
+# conditional sources / cflags
 if jack_dep.found()
     src += [ 'jack.c' ]
+    gmidimonitor_flags += ['-DHAVE_JACK']
 endif
 
 if alsa_dep.found()
     src += [ 'alsa.c' ]
+    gmidimonitor_flags += ['-DHAVE_ALSA']
+endif
+
+if lash_dep.found()
+    gmidimonitor_flags += ['-DHAVE_LASH_1_0']
 endif
 
 # target
@@ -60,7 +70,7 @@ executable(
     'gmidimonitor',
     src,
     dependencies : [gtkdep, gthreaddep, gmodule, jack_dep, alsa_dep, lash_dep],
-    c_args : '-Wall',
+    c_args : gmidimonitor_flags,
     install : true
 )
 
