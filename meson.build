@@ -23,9 +23,9 @@ endif
 # define paths
 gmidimonitor_prefix = get_option('prefix')
 gmidimonitor_bindir = join_paths(gmidimonitor_prefix, get_option('bindir'))
-gmidimonitor_datadir = join_paths(gmidimonitor_prefix, get_option('datadir'))
-gmidimonitor_desktopdir = join_paths(gmidimonitor_datadir, 'applications')
-gmidimonitor_pixmapsdir = join_paths(gmidimonitor_datadir, 'pixmaps')
+gmidimonitor_datadir = join_paths(gmidimonitor_prefix, get_option('datadir') / meson.project_name())
+gmidimonitor_desktopdir = join_paths(get_option('datadir'), 'applications')
+gmidimonitor_pixmapsdir = join_paths(get_option('datadir'), 'pixmaps')
 
 # configure.h
 conf_data = configuration_data()
@@ -35,8 +35,6 @@ conf_data.set('datadir', gmidimonitor_datadir)
 configure_file(input : 'config.h.in',
                output : 'config.h',
                configuration : conf_data)
-
-#cc = meson.get_compiler('c')
 
 # sources
 src = [
@@ -65,6 +63,9 @@ executable(
   c_args : '-Wall',
   install : true
 )
+
+# additional installs
+install_data('gmidimonitor.ui')
 
 message('')
 message('==================')
