@@ -17,13 +17,13 @@ lash_dep = dependency('lash', required : get_option('lash'))
 
 # we need at least one of jack/alsa
 if not jack_dep.found() and not alsa_dep.found()
-  error('Neither JACK nor ALSA is available')
+    error('Neither JACK nor ALSA is available')
 endif
 
 # define paths
 gmidimonitor_prefix = get_option('prefix')
 gmidimonitor_bindir = join_paths(gmidimonitor_prefix, get_option('bindir'))
-gmidimonitor_datadir = join_paths(gmidimonitor_prefix, get_option('datadir') / meson.project_name())
+gmidimonitor_datadir = join_paths(gmidimonitor_prefix, get_option('datadir'), meson.project_name())
 gmidimonitor_desktopdir = join_paths(get_option('datadir'), 'applications')
 gmidimonitor_pixmapsdir = join_paths(get_option('datadir'), 'pixmaps')
 
@@ -38,34 +38,41 @@ configure_file(input : 'config.h.in',
 
 # sources
 src = [
-  'main.c',
-  'about.c',
-  'path.c',
-  'gm.c',
-  'log.c',
-  'memory_atomic.c',
-  'sysex.c'
+    'main.c',
+    'about.c',
+    'path.c',
+    'gm.c',
+    'log.c',
+    'memory_atomic.c',
+    'sysex.c'
 ]
 
 if jack_dep.found()
-  src += [ 'jack.c' ]
+    src += [ 'jack.c' ]
 endif
 
 if alsa_dep.found()
-  src += [ 'alsa.c' ]
+    src += [ 'alsa.c' ]
 endif
 
 # target
 executable(
-  'gmidimonitor',
-  src,
-  dependencies : [gtkdep, gthreaddep, gmodule, jack_dep, alsa_dep, lash_dep],
-  c_args : '-Wall',
-  install : true
+    'gmidimonitor',
+    src,
+    dependencies : [gtkdep, gthreaddep, gmodule, jack_dep, alsa_dep, lash_dep],
+    c_args : '-Wall',
+    install : true
 )
 
 # additional installs
 install_data('gmidimonitor.ui')
+install_data('RB_keyboard_icon.svg', install_dir : gmidimonitor_pixmapsdir, rename : 'gmidimonitor.svg')
+if jack_dep.found()
+    install_data('gmidimonitor-jack.desktop', install_dir : gmidimonitor_desktopdir)
+endif
+if alsa_dep.found()
+    install_data('gmidimonitor-alsa.desktop', install_dir : gmidimonitor_desktopdir)
+endif
 
 message('')
 message('==================')
