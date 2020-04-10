@@ -150,13 +150,13 @@ jack_midi_decode(
 
   if (buffer_size == 1 && buffer[0] == 0xFE)
   {
-    g_string_sprintf(msg_str_ptr, "Active sensing");
+    g_string_printf(msg_str_ptr, "Active sensing");
     return FALSE;               /* disable */
   }
 
   if (buffer_size == 1 && buffer[0] == 0xF8)
   {
-    g_string_sprintf(msg_str_ptr, "Timing Clock");
+    g_string_printf(msg_str_ptr, "Timing Clock");
     return FALSE;               /* disable */
   }
 
@@ -185,9 +185,9 @@ jack_midi_decode(
     note_name = g_note_names[note % 12];
     octave = note / 12 - 1;
 
-    g_string_sprintf(channel_str_ptr, "%u", channel);
+    g_string_printf(channel_str_ptr, "%u", channel);
 
-    g_string_sprintf(
+    g_string_printf(
       msg_str_ptr,
       "Note off, %s, octave %d, velocity %u",
       note_name,
@@ -217,7 +217,7 @@ jack_midi_decode(
     note_name = g_note_names[note % 12];
     octave = note / 12 - 1;
 
-    g_string_sprintf(channel_str_ptr, "%u", channel);
+    g_string_printf(channel_str_ptr, "%u", channel);
 
     if (channel == 10)
     {
@@ -235,7 +235,7 @@ jack_midi_decode(
         return FALSE;                                 /* ignore note off for drums */
       }
 
-      g_string_sprintf(
+      g_string_printf(
         msg_str_ptr,
         "Drum: %s (%s, octave %d, velocity %u)",
         drum_name,
@@ -245,7 +245,7 @@ jack_midi_decode(
     }
     else
     {
-      g_string_sprintf(
+      g_string_printf(
         msg_str_ptr,
         "Note on, %s, octave %d, velocity %u",
         note_name,
@@ -276,9 +276,9 @@ jack_midi_decode(
     note_name = g_note_names[note % 12];
     octave = note / 12 - 1;
 
-    g_string_sprintf(channel_str_ptr, "%u", channel);
+    g_string_printf(channel_str_ptr, "%u", channel);
 
-    g_string_sprintf(
+    g_string_printf(
       msg_str_ptr,
       "Polyphonic Key Pressure (Aftertouch), %s, octave %d, velocity %u",
       note_name,
@@ -305,13 +305,13 @@ jack_midi_decode(
       goto unknown_event;
     }
 
-    g_string_sprintf(channel_str_ptr, "%u", channel);
+    g_string_printf(channel_str_ptr, "%u", channel);
 
     controller_name = gm_get_controller_name(controller);
 
     if (controller_name != NULL)
     {
-      g_string_sprintf(
+      g_string_printf(
         msg_str_ptr,
         "CC %s (%u), value %u",
         controller_name,
@@ -320,7 +320,7 @@ jack_midi_decode(
     }
     else
     {
-      g_string_sprintf(
+      g_string_printf(
         msg_str_ptr,
         "CC %u, value %u",
         controller,
@@ -341,9 +341,9 @@ jack_midi_decode(
       goto unknown_event;
     }
 
-    g_string_sprintf(channel_str_ptr, "%u", channel);
+    g_string_printf(channel_str_ptr, "%u", channel);
 
-    g_string_sprintf(
+    g_string_printf(
       msg_str_ptr,
       "Program change, %d (%s)",
       value,
@@ -361,9 +361,9 @@ jack_midi_decode(
     pitch |= (unsigned int)buffer[2] << 7;
     pitch -= 0x2000;
 
-    g_string_sprintf(channel_str_ptr, "%u", channel);
+    g_string_printf(channel_str_ptr, "%u", channel);
 
-    g_string_sprintf(
+    g_string_printf(
       msg_str_ptr,
       "Pitchwheel, %d",
       pitch);
@@ -379,7 +379,7 @@ jack_midi_decode(
 
   if (buffer_size == 1 && buffer[0] == 0xFF)
   {
-    g_string_sprintf(
+    g_string_printf(
       msg_str_ptr,
       "Reset");
    
@@ -387,7 +387,7 @@ jack_midi_decode(
   }
 
 unknown_event:
-  g_string_sprintf(
+  g_string_printf(
     msg_str_ptr,
     "unknown midi event with size %u bytes:",
     (unsigned int)buffer_size);

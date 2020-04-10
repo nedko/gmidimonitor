@@ -355,7 +355,7 @@ main(int argc, char *argv[])
   create_mainwindow();
 
   client_name_str_ptr = g_string_new("");
-  g_string_sprintf(client_name_str_ptr, "MIDI monitor");
+  g_string_printf(client_name_str_ptr, "MIDI monitor");
 
   g_row_count = 0;
 
