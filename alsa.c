@@ -63,7 +63,7 @@ alsa_midi_thread(void * context_ptr)
       continue;
 
     time_str_ptr = g_string_new("");
-    g_string_sprintf(
+    g_string_printf(
       time_str_ptr,
       "%u:%u",
       (unsigned int)event_ptr->time.time.tv_sec,
@@ -80,7 +80,7 @@ alsa_midi_thread(void * context_ptr)
         event_ptr->type == SND_SEQ_EVENT_NOTEOFF ||
         event_ptr->type == SND_SEQ_EVENT_KEYPRESS)
     {
-      g_string_sprintf(
+      g_string_printf(
         channel_str_ptr,
         "%u",
         (unsigned int)event_ptr->data.note.channel+1);
@@ -101,7 +101,7 @@ alsa_midi_thread(void * context_ptr)
         event_ptr->type == SND_SEQ_EVENT_PGMCHANGE ||
         event_ptr->type == SND_SEQ_EVENT_PITCHBEND)
     {
-      g_string_sprintf(
+      g_string_printf(
         channel_str_ptr,
         "%u",
         (unsigned int)event_ptr->data.control.channel+1);
@@ -112,20 +112,20 @@ alsa_midi_thread(void * context_ptr)
     switch (event_ptr->type)
     {
     case SND_SEQ_EVENT_SYSTEM:
-      g_string_sprintf(msg_str_ptr, "System event"); 
+      g_string_printf(msg_str_ptr, "System event"); 
       break;
     case SND_SEQ_EVENT_RESULT:
-      g_string_sprintf(msg_str_ptr, "Result status event"); 
+      g_string_printf(msg_str_ptr, "Result status event"); 
       break;
     case SND_SEQ_EVENT_NOTE:
-      g_string_sprintf(msg_str_ptr, "Note");
+      g_string_printf(msg_str_ptr, "Note");
       break;
     case SND_SEQ_EVENT_NOTEON:
       if (event_ptr->data.note.velocity != 0)
       {
         if (drum_name != NULL)
         {
-          g_string_sprintf(
+          g_string_printf(
             msg_str_ptr,
             "Drum: %s (%s, octave %d, velocity %u)",
             drum_name,
@@ -135,7 +135,7 @@ alsa_midi_thread(void * context_ptr)
         }
         else
         {
-          g_string_sprintf(
+          g_string_printf(
             msg_str_ptr,
             "Note on, %s, octave %d, velocity %u",
             note_name,
@@ -148,7 +148,7 @@ alsa_midi_thread(void * context_ptr)
       if (drum_name != NULL)    /* ignore note off for drums */
         continue;
 
-      g_string_sprintf(
+      g_string_printf(
         msg_str_ptr,
         "Note off, %s, octave %d",
         note_name,
@@ -156,7 +156,7 @@ alsa_midi_thread(void * context_ptr)
 
       break;
     case SND_SEQ_EVENT_KEYPRESS:
-      g_string_sprintf(msg_str_ptr, "Key pressure change (aftertouch)");
+      g_string_printf(msg_str_ptr, "Key pressure change (aftertouch)");
       break;
     case SND_SEQ_EVENT_CONTROLLER:
       cc_name = NULL;
@@ -382,7 +382,7 @@ alsa_midi_thread(void * context_ptr)
 
       if (cc_name != NULL)
       {
-        g_string_sprintf(
+        g_string_printf(
           msg_str_ptr,
           "CC %s (%u), value %u",
           cc_name,
@@ -391,7 +391,7 @@ alsa_midi_thread(void * context_ptr)
       }
       else
       {
-        g_string_sprintf(
+        g_string_printf(
           msg_str_ptr,
           "CC %u, value %u",
           (unsigned int)event_ptr->data.control.param,
@@ -399,231 +399,231 @@ alsa_midi_thread(void * context_ptr)
       }
       break;
     case SND_SEQ_EVENT_PGMCHANGE:
-      g_string_sprintf(
+      g_string_printf(
         msg_str_ptr,
         "Program change, %d (%s)",
         (unsigned int)event_ptr->data.control.value,
         event_ptr->data.control.value > 127 || event_ptr->data.control.value < 0 ? "???": gm_get_instrument_name(event_ptr->data.control.value));
       break;
     case SND_SEQ_EVENT_CHANPRESS:
-      g_string_sprintf(msg_str_ptr, "Channel pressure");
+      g_string_printf(msg_str_ptr, "Channel pressure");
       break;
     case SND_SEQ_EVENT_PITCHBEND:
-      g_string_sprintf(
+      g_string_printf(
         msg_str_ptr,
         "Pitchwheel, %d",
         (signed int)event_ptr->data.control.value);
       break;
     case SND_SEQ_EVENT_CONTROL14:
-      g_string_sprintf(msg_str_ptr, "14 bit controller value");
+      g_string_printf(msg_str_ptr, "14 bit controller value");
       break;
     case SND_SEQ_EVENT_NONREGPARAM:
-      g_string_sprintf(msg_str_ptr, "NRPN");
+      g_string_printf(msg_str_ptr, "NRPN");
       break;
     case SND_SEQ_EVENT_REGPARAM:
-      g_string_sprintf(msg_str_ptr, "RPN");
+      g_string_printf(msg_str_ptr, "RPN");
       break;
     case SND_SEQ_EVENT_SONGPOS:
-      g_string_sprintf(msg_str_ptr, "Song position");
+      g_string_printf(msg_str_ptr, "Song position");
       break;
     case SND_SEQ_EVENT_SONGSEL:
-      g_string_sprintf(msg_str_ptr, "Song select");
+      g_string_printf(msg_str_ptr, "Song select");
       break;
     case SND_SEQ_EVENT_QFRAME:
-      g_string_sprintf(msg_str_ptr, "midi time code quarter frame");
+      g_string_printf(msg_str_ptr, "midi time code quarter frame");
       break;
     case SND_SEQ_EVENT_TIMESIGN:
-      g_string_sprintf(msg_str_ptr, "SMF Time Signature event");
+      g_string_printf(msg_str_ptr, "SMF Time Signature event");
       break;
     case SND_SEQ_EVENT_KEYSIGN:
-      g_string_sprintf(msg_str_ptr, "SMF Key Signature event");
+      g_string_printf(msg_str_ptr, "SMF Key Signature event");
       break;
     case SND_SEQ_EVENT_START:
-      g_string_sprintf(msg_str_ptr, "MIDI Real Time Start message");
+      g_string_printf(msg_str_ptr, "MIDI Real Time Start message");
       break;
     case SND_SEQ_EVENT_CONTINUE:
-      g_string_sprintf(msg_str_ptr, "MIDI Real Time Continue message");
+      g_string_printf(msg_str_ptr, "MIDI Real Time Continue message");
       break;
     case SND_SEQ_EVENT_STOP:
-      g_string_sprintf(msg_str_ptr, "MIDI Real Time Stop message");
+      g_string_printf(msg_str_ptr, "MIDI Real Time Stop message");
       break;
     case SND_SEQ_EVENT_SETPOS_TICK:
-      g_string_sprintf(msg_str_ptr, "Set tick queue position");
+      g_string_printf(msg_str_ptr, "Set tick queue position");
       break;
     case SND_SEQ_EVENT_SETPOS_TIME:
-      g_string_sprintf(msg_str_ptr, "Set real-time queue position");
+      g_string_printf(msg_str_ptr, "Set real-time queue position");
       break;
     case SND_SEQ_EVENT_TEMPO:
-      g_string_sprintf(msg_str_ptr, "(SMF) Tempo event");
+      g_string_printf(msg_str_ptr, "(SMF) Tempo event");
       break;
     case SND_SEQ_EVENT_CLOCK:
-      g_string_sprintf(msg_str_ptr, "MIDI Real Time Clock message");
+      g_string_printf(msg_str_ptr, "MIDI Real Time Clock message");
       break;
     case SND_SEQ_EVENT_TICK:
-      g_string_sprintf(msg_str_ptr, "MIDI Real Time Tick message");
+      g_string_printf(msg_str_ptr, "MIDI Real Time Tick message");
       break;
     case SND_SEQ_EVENT_QUEUE_SKEW:
-      g_string_sprintf(msg_str_ptr, "Queue timer skew");
+      g_string_printf(msg_str_ptr, "Queue timer skew");
       break;
     case SND_SEQ_EVENT_SYNC_POS:
-      g_string_sprintf(msg_str_ptr, "Sync position changed");
+      g_string_printf(msg_str_ptr, "Sync position changed");
       break;
     case SND_SEQ_EVENT_TUNE_REQUEST:
-      g_string_sprintf(msg_str_ptr, "Tune request");
+      g_string_printf(msg_str_ptr, "Tune request");
       break;
     case SND_SEQ_EVENT_RESET:
-      g_string_sprintf(msg_str_ptr, "Reset");
+      g_string_printf(msg_str_ptr, "Reset");
       break;
     case SND_SEQ_EVENT_SENSING:
       continue;                 /* disable */
-      g_string_sprintf(msg_str_ptr, "Active sensing");
+      g_string_printf(msg_str_ptr, "Active sensing");
       break;
     case SND_SEQ_EVENT_ECHO:
-      g_string_sprintf(msg_str_ptr, "Echo-back event");
+      g_string_printf(msg_str_ptr, "Echo-back event");
       break;
     case SND_SEQ_EVENT_OSS:
-      g_string_sprintf(msg_str_ptr, "OSS emulation raw event");
+      g_string_printf(msg_str_ptr, "OSS emulation raw event");
       break;
     case SND_SEQ_EVENT_CLIENT_START:
-      g_string_sprintf(msg_str_ptr, "New client has connected");
+      g_string_printf(msg_str_ptr, "New client has connected");
       break;
     case SND_SEQ_EVENT_CLIENT_EXIT:
-      g_string_sprintf(msg_str_ptr, "Client has left the system");
+      g_string_printf(msg_str_ptr, "Client has left the system");
       break;
     case SND_SEQ_EVENT_CLIENT_CHANGE:
-      g_string_sprintf(msg_str_ptr, "Client status/info has changed");
+      g_string_printf(msg_str_ptr, "Client status/info has changed");
       break;
     case SND_SEQ_EVENT_PORT_START:
-      g_string_sprintf(msg_str_ptr, "New port was created");
+      g_string_printf(msg_str_ptr, "New port was created");
       break;
     case SND_SEQ_EVENT_PORT_EXIT:
-      g_string_sprintf(msg_str_ptr, "Port was deleted from system");
+      g_string_printf(msg_str_ptr, "Port was deleted from system");
       break;
     case SND_SEQ_EVENT_PORT_CHANGE:
-      g_string_sprintf(msg_str_ptr, "Port status/info has changed");
+      g_string_printf(msg_str_ptr, "Port status/info has changed");
       break;
     case SND_SEQ_EVENT_PORT_SUBSCRIBED:
-      g_string_sprintf(msg_str_ptr, "Port connected");
+      g_string_printf(msg_str_ptr, "Port connected");
       break;
     case SND_SEQ_EVENT_PORT_UNSUBSCRIBED:
-      g_string_sprintf(msg_str_ptr, "Port disconnected");
+      g_string_printf(msg_str_ptr, "Port disconnected");
       break;
 #if OLD_ALSA
     case SND_SEQ_EVENT_SAMPLE:
-      g_string_sprintf(msg_str_ptr, "Sample select");
+      g_string_printf(msg_str_ptr, "Sample select");
       break;
     case SND_SEQ_EVENT_SAMPLE_CLUSTER:
-      g_string_sprintf(msg_str_ptr, "Sample cluster select");
+      g_string_printf(msg_str_ptr, "Sample cluster select");
       break;
     case SND_SEQ_EVENT_SAMPLE_START:
-      g_string_sprintf(msg_str_ptr, "voice start");
+      g_string_printf(msg_str_ptr, "voice start");
       break;
     case SND_SEQ_EVENT_SAMPLE_STOP:
-      g_string_sprintf(msg_str_ptr, "voice stop");
+      g_string_printf(msg_str_ptr, "voice stop");
       break;
     case SND_SEQ_EVENT_SAMPLE_FREQ:
-      g_string_sprintf(msg_str_ptr, "playback frequency");
+      g_string_printf(msg_str_ptr, "playback frequency");
       break;
     case SND_SEQ_EVENT_SAMPLE_VOLUME:
-      g_string_sprintf(msg_str_ptr, "volume and balance");
+      g_string_printf(msg_str_ptr, "volume and balance");
       break;
     case SND_SEQ_EVENT_SAMPLE_LOOP:
-      g_string_sprintf(msg_str_ptr, "sample loop");
+      g_string_printf(msg_str_ptr, "sample loop");
       break;
     case SND_SEQ_EVENT_SAMPLE_POSITION:
-      g_string_sprintf(msg_str_ptr, "sample position");
+      g_string_printf(msg_str_ptr, "sample position");
       break;
     case SND_SEQ_EVENT_SAMPLE_PRIVATE1:
-      g_string_sprintf(msg_str_ptr, "private (hardware dependent) event");
+      g_string_printf(msg_str_ptr, "private (hardware dependent) event");
       break;
 #endif
     case SND_SEQ_EVENT_USR0:
-      g_string_sprintf(msg_str_ptr, "user-defined event");
+      g_string_printf(msg_str_ptr, "user-defined event");
       break;
     case SND_SEQ_EVENT_USR1:
-      g_string_sprintf(msg_str_ptr, "user-defined event");
+      g_string_printf(msg_str_ptr, "user-defined event");
       break;
     case SND_SEQ_EVENT_USR2:
-      g_string_sprintf(msg_str_ptr, "user-defined event");
+      g_string_printf(msg_str_ptr, "user-defined event");
       break;
     case SND_SEQ_EVENT_USR3:
-      g_string_sprintf(msg_str_ptr, "user-defined event");
+      g_string_printf(msg_str_ptr, "user-defined event");
       break;
     case SND_SEQ_EVENT_USR4:
-      g_string_sprintf(msg_str_ptr, "user-defined event");
+      g_string_printf(msg_str_ptr, "user-defined event");
       break;
     case SND_SEQ_EVENT_USR5:
-      g_string_sprintf(msg_str_ptr, "user-defined event");
+      g_string_printf(msg_str_ptr, "user-defined event");
       break;
     case SND_SEQ_EVENT_USR6:
-      g_string_sprintf(msg_str_ptr, "user-defined event");
+      g_string_printf(msg_str_ptr, "user-defined event");
       break;
     case SND_SEQ_EVENT_USR7:
-      g_string_sprintf(msg_str_ptr, "user-defined event");
+      g_string_printf(msg_str_ptr, "user-defined event");
       break;
     case SND_SEQ_EVENT_USR8:
-      g_string_sprintf(msg_str_ptr, "user-defined event");
+      g_string_printf(msg_str_ptr, "user-defined event");
       break;
     case SND_SEQ_EVENT_USR9:
-      g_string_sprintf(msg_str_ptr, "user-defined event");
+      g_string_printf(msg_str_ptr, "user-defined event");
       break;
 #if OLD_ALSA
     case SND_SEQ_EVENT_INSTR_BEGIN:
-      g_string_sprintf(msg_str_ptr, "begin of instrument management");
+      g_string_printf(msg_str_ptr, "begin of instrument management");
       break;
     case SND_SEQ_EVENT_INSTR_END:
-      g_string_sprintf(msg_str_ptr, "end of instrument management");
+      g_string_printf(msg_str_ptr, "end of instrument management");
       break;
     case SND_SEQ_EVENT_INSTR_INFO:
-      g_string_sprintf(msg_str_ptr, "query instrument interface info");
+      g_string_printf(msg_str_ptr, "query instrument interface info");
       break;
     case SND_SEQ_EVENT_INSTR_INFO_RESULT:
-      g_string_sprintf(msg_str_ptr, "result of instrument interface info");
+      g_string_printf(msg_str_ptr, "result of instrument interface info");
       break;
     case SND_SEQ_EVENT_INSTR_FINFO:
-      g_string_sprintf(msg_str_ptr, "query instrument format info");
+      g_string_printf(msg_str_ptr, "query instrument format info");
       break;
     case SND_SEQ_EVENT_INSTR_FINFO_RESULT:
-      g_string_sprintf(msg_str_ptr, "result of instrument format info");
+      g_string_printf(msg_str_ptr, "result of instrument format info");
       break;
     case SND_SEQ_EVENT_INSTR_RESET:
-      g_string_sprintf(msg_str_ptr, "reset instrument instrument memory");
+      g_string_printf(msg_str_ptr, "reset instrument instrument memory");
       break;
     case SND_SEQ_EVENT_INSTR_STATUS:
-      g_string_sprintf(msg_str_ptr, "get instrument interface status");
+      g_string_printf(msg_str_ptr, "get instrument interface status");
       break;
     case SND_SEQ_EVENT_INSTR_STATUS_RESULT:
-      g_string_sprintf(msg_str_ptr, "result of instrument interface status");
+      g_string_printf(msg_str_ptr, "result of instrument interface status");
       break;
     case SND_SEQ_EVENT_INSTR_PUT:
-      g_string_sprintf(msg_str_ptr, "put an instrument to port");
+      g_string_printf(msg_str_ptr, "put an instrument to port");
       break;
     case SND_SEQ_EVENT_INSTR_GET:
-      g_string_sprintf(msg_str_ptr, "get an instrument from port");
+      g_string_printf(msg_str_ptr, "get an instrument from port");
       break;
     case SND_SEQ_EVENT_INSTR_GET_RESULT:
-      g_string_sprintf(msg_str_ptr, "result of instrument query");
+      g_string_printf(msg_str_ptr, "result of instrument query");
       break;
     case SND_SEQ_EVENT_INSTR_FREE:
-      g_string_sprintf(msg_str_ptr, "free instrument(s)");
+      g_string_printf(msg_str_ptr, "free instrument(s)");
       break;
     case SND_SEQ_EVENT_INSTR_LIST:
-      g_string_sprintf(msg_str_ptr, "get instrument list");
+      g_string_printf(msg_str_ptr, "get instrument list");
       break;
     case SND_SEQ_EVENT_INSTR_LIST_RESULT:
-      g_string_sprintf(msg_str_ptr, "result of instrument list");
+      g_string_printf(msg_str_ptr, "result of instrument list");
       break;
     case SND_SEQ_EVENT_INSTR_CLUSTER:
-      g_string_sprintf(msg_str_ptr, "set cluster parameters");
+      g_string_printf(msg_str_ptr, "set cluster parameters");
       break;
     case SND_SEQ_EVENT_INSTR_CLUSTER_GET:
-      g_string_sprintf(msg_str_ptr, "get cluster parameters");
+      g_string_printf(msg_str_ptr, "get cluster parameters");
       break;
     case SND_SEQ_EVENT_INSTR_CLUSTER_RESULT:
-      g_string_sprintf(msg_str_ptr, "result of cluster parameters");
+      g_string_printf(msg_str_ptr, "result of cluster parameters");
       break;
     case SND_SEQ_EVENT_INSTR_CHANGE:
-      g_string_sprintf(msg_str_ptr, "instrument change");
+      g_string_printf(msg_str_ptr, "instrument change");
       break;
 #endif
     case SND_SEQ_EVENT_SYSEX:
@@ -633,22 +633,22 @@ alsa_midi_thread(void * context_ptr)
         msg_str_ptr);
       break;
     case SND_SEQ_EVENT_BOUNCE:
-      g_string_sprintf(msg_str_ptr, "error event");
+      g_string_printf(msg_str_ptr, "error event");
       break;
     case SND_SEQ_EVENT_USR_VAR0:
-      g_string_sprintf(msg_str_ptr, "reserved for user apps");
+      g_string_printf(msg_str_ptr, "reserved for user apps");
       break;
     case SND_SEQ_EVENT_USR_VAR1:
-      g_string_sprintf(msg_str_ptr, "reserved for user apps");
+      g_string_printf(msg_str_ptr, "reserved for user apps");
       break;
     case SND_SEQ_EVENT_USR_VAR2:
-      g_string_sprintf(msg_str_ptr, "reserved for user apps");
+      g_string_printf(msg_str_ptr, "reserved for user apps");
       break;
     case SND_SEQ_EVENT_USR_VAR3:
-      g_string_sprintf(msg_str_ptr, "reserved for user apps");
+      g_string_printf(msg_str_ptr, "reserved for user apps");
       break;
     case SND_SEQ_EVENT_USR_VAR4:
-      g_string_sprintf(msg_str_ptr, "reserved for user apps");
+      g_string_printf(msg_str_ptr, "reserved for user apps");
       break;
     }
 

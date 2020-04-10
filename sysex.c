@@ -85,7 +85,7 @@ decode_sysex(
     default:
       goto generic_sysex;
     }
-    g_string_sprintf(
+    g_string_printf(
       msg_str_ptr,
       "MMC %s, for ",
       mmc_command_name);
@@ -114,7 +114,7 @@ decode_sysex(
            buffer[6] == 0x01 &&
            buffer[12] == 0xF7)
   {
-    g_string_sprintf(
+    g_string_printf(
       msg_str_ptr,
       "MMC goto %u:%u:%u/%u:%u",
       (unsigned int)(buffer[7] & 0x1F), /* fps encoding */
@@ -164,7 +164,7 @@ decode_sysex(
   else
   {
   generic_sysex:
-    g_string_sprintf(
+    g_string_printf(
       msg_str_ptr,
       "SYSEX with size %u:",
       (unsigned int)buffer_size);
