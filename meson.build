@@ -6,7 +6,7 @@ project(
 )
 
 # mandatory dependencies
-gtkdep = dependency('gtk+-2.0')
+gtkdep = dependency('gtk+-3.0')
 gthreaddep = dependency('gthread-2.0')
 gmodule = dependency('gmodule-2.0')
 
