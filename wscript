@@ -1,7 +1,8 @@
 #! /usr/bin/env python
 # encoding: utf-8
 
-import os, Logs, Options
+import os
+from waflib import Logs, Options
 
 top = '.'
 out = 'build'
@@ -45,11 +46,11 @@ def add_opt_feature(opt, feature, help):
 
 def options(opt):
     opt.load('compiler_c')
-    for k, v in optfeatures.items():
+    for k, v in list(optfeatures.items()):
         add_opt_feature(opt, k, v['description'])
 
 def check_opt_packages(ctx):
-    for opt, v in optfeatures.items():
+    for opt, v in list(optfeatures.items()):
         site = v['site']
         try:
             package = v['package']
