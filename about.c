@@ -37,6 +37,7 @@ static const gchar * authors[] =
 {
   "Nedko Arnaudov <nedko@arnaudov.name> - http://nedko.arnaudov.name",
   "Alessio Treglia <alessio@debian.org>",
+  "Andreas Müller <schnitzeltony@gmail.com>",
   NULL
 };
 
