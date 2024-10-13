@@ -1,8 +1,8 @@
 This directory contains source code of gmidimonitor program.
 
-Go to http://home.gna.org/gmidimonitor/ for more info.
-
 See INSTALL for info how to build/install the program.
+
+The web site is at https://github.com/nedko/gmidimonitor
 
 === Using GMIDImonitor ===
 You need to connect desired source of MIDI events to gmidimonitor

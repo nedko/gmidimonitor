@@ -5,7 +5,7 @@
  *
  *   This file is part of gmidimonitor
  *
- *   Copyright (C) 2005,2006,2007,2008,2011 Nedko Arnaudov <nedko@arnaudov.name>
+ *   Copyright (C) 2005,2006,2007,2008,2011,2023 Nedko Arnaudov
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -35,8 +35,9 @@
 
 static const gchar * authors[] =
 {
-  "Nedko Arnaudov <nedko@arnaudov.name> - http://nedko.arnaudov.name",
+  "Nedko Arnaudov <nedko@nedk.org>",
   "Alessio Treglia <alessio@debian.org>",
+  "Andreas Müller <schnitzeltony@gmail.com>",
   NULL
 };
 
@@ -393,10 +394,10 @@ on_about_clicked(
     GTK_TYPE_ABOUT_DIALOG,
     "name", "GMIDImonitor",
     "version", PACKAGE_VERSION,
-    "copyright", "Copyright \xc2\xa9 2005,2006,2007,2008,2011 Nedko Arnaudov",
+    "copyright", "Copyright \xc2\xa9 2005,2006,2007,2008,2011,2023 Nedko Arnaudov",
     "authors", authors,
     "comments", "GTK MIDI monitor.",
-    "website", "http://home.gna.org/gmidimonitor/",
+    "website", "https://github.com/nedko/gmidimonitor/",
     "license", license,
     NULL);
 
