@@ -42,7 +42,7 @@ def add_linkflag(ctx, flag):
 
 def add_opt_feature(opt, feature, help):
     help = "Whether to build " + help + ", possible values: 'yes', 'no' and 'auto'. Default is 'auto'."
-    opt.add_option('--' + feature, type='choice', choices=['auto', 'yes', 'no'], default='auto', help=help)
+    opt.add_option('--' + feature, type=ascii, choices=['auto', 'yes', 'no'], default='auto', help=help)
 
 def options(opt):
     opt.load('compiler_c')
