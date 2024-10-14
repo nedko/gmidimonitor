@@ -82,7 +82,7 @@ def configure(ctx):
     ctx.load('compiler_c')
 
     ctx.check_cfg(
-        package = 'gtk+-2.0',
+        package = 'gtk+-3.0',
         errmsg = "not installed, see http://www.gtk.org/",
         args = '--cflags --libs')
 
@@ -136,7 +136,7 @@ def build(ctx):
         "memory_atomic.c",
         "sysex.c",
         ]
-    uselib = ['GTK+-2.0', 'GTHREAD-2.0', 'GMODULE-2.0']
+    uselib = ['GTK+-3.0', 'GTHREAD-2.0', 'GMODULE-2.0']
 
     if ctx.env['BUILD_JACK']:
         source.append("jack.c")
